@@ -69,7 +69,7 @@ static void SleepFor(unsigned int ms);
 
 static Window* mainWindow{};
 
-static kvec2 lastSize{};
+static vec2 lastSize{};
 
 namespace KalaTestProject::Core
 {
@@ -88,7 +88,7 @@ namespace KalaTestProject::Core
 
 		unique_ptr<Window> newWindow = Window::Initialize(
 			title,
-			kvec2{ width, height });
+			vec2{ width, height });
 		mainWindow = newWindow.get();
 
 		if (mainWindow == nullptr) return;
@@ -103,8 +103,8 @@ namespace KalaTestProject::Core
 		if (!Render::Initialize()) return;
 		Renderer_OpenGL::SetVSyncState(GLVState::VSYNC_ON);
 
-		mainWindow->SetMinSize(kvec2{ 800, 600 });
-		mainWindow->SetMaxSize(kvec2{ 3840, 2160 });
+		mainWindow->SetMinSize(vec2{ 800, 600 });
+		mainWindow->SetMaxSize(vec2{ 3840, 2160 });
 
 		stringstream ss{};
 		ss << "\n====================\n"
@@ -268,7 +268,7 @@ void DisplayTitleData()
 			<< "s] Frames: " << fpsStr << "\n";
 		*/
 
-		kvec2 winSize = mainWindow->GetSize();
+		vec2 winSize = mainWindow->GetSize();
 		if (lastSize.x != winSize.x
 			|| lastSize.y != winSize.y)
 		{

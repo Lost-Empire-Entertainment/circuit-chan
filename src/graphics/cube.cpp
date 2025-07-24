@@ -9,6 +9,8 @@
 #include <memory>
 #include <vector>
 
+#include "glm/gtc/matrix_transform.hpp"
+
 //kalawindow
 #include "graphics/window.hpp"
 #include "core/log.hpp"
@@ -39,6 +41,7 @@ using std::ofstream;
 using std::unique_ptr;
 using std::make_unique;
 using std::vector;
+using glm::translate;
 
 static unsigned int VAO{};
 static unsigned int VBO{};
@@ -117,10 +120,19 @@ namespace KalaTestProject::Graphics
 			return;
 		}
 
+		unsigned int thisID = Texture::createdTextures["shader_cube"]->GetTextureID();
 		thisCubeShader->Bind();
+		
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, thisID);
+
+		mat4 model = mat4(1.0f);
+		model = translate(model, vec3(0.0f, 1.0f, 0.0f));
+
+		thisCubeShader->SetMat4(thisID, "model", model);
 
 		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 	}
 
 	void Cube::Destroy()

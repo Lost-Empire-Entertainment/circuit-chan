@@ -40,7 +40,6 @@ set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
 
 set(EXT_WINDOW_DIR "${CMAKE_SOURCE_DIR}/_external_shared/KalaWindow")
 set(EXT_CRASH_DIR "${CMAKE_SOURCE_DIR}/_external_shared/KalaCrashHandler")
-set(EXT_GLM_DIR "${CMAKE_SOURCE_DIR}/_external_shared/glm")
 set(EXT_STB_IMAGE_DIR "${CMAKE_SOURCE_DIR}/_external_shared/stb_image")
 
 # Dependencies
@@ -96,9 +95,9 @@ file(GLOB_RECURSE HEADERS
 target_sources(CircuitGame PRIVATE ${HEADERS})
 target_include_directories(CircuitGame PRIVATE
 	"${INCLUDE_DIR}"
+	"${INCLUDE_DIR}/glm"
     "${EXT_WINDOW_DIR}/include"
     "${EXT_CRASH_DIR}/include"
-	"${EXT_GLM_DIR}"
 	"${EXT_STB_IMAGE_DIR}"
 )
 

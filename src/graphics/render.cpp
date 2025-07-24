@@ -13,9 +13,8 @@
 #include "graphics/opengl/shader_opengl.hpp"
 
 //glm
-#include "glm.hpp"
-#include "gtc/matrix_transform.hpp"
-#include "gtc/type_ptr.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 #include "graphics/render.hpp"
 #include "graphics/cube.hpp"
@@ -36,7 +35,7 @@ using glm::ortho;
 using glm::perspective;
 using glm::value_ptr;
 
-static kvec2 lastSize{};
+static vec2 lastSize{};
 
 static Window* mainWindow{};
 
@@ -81,7 +80,7 @@ void ResizeProjectionMatrix()
 	Shader_OpenGL* shader = Cube::GetCubeShader();
 	if (!shader) return;
 
-	kvec2 framebufferSize = mainWindow->GetSize();
+	vec2 framebufferSize = mainWindow->GetSize();
 	float aspect = framebufferSize.x / framebufferSize.y;
 
 	float orthoWidth = 1.0f;
