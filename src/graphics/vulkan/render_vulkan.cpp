@@ -3,6 +3,7 @@
 //This is free software, and you are welcome to redistribute it under certain conditions.
 //Read LICENSE.md for more information.
 
+/*
 //kalawindow
 #include "graphics/window.hpp"
 #include "graphics/vulkan/vulkan.hpp"
@@ -96,3 +97,4 @@ namespace KalaTestProject::Graphics::Vulkan
 		}
 	}
 }
+*/

@@ -5,6 +5,7 @@
 
 #pragma once
 
+/*
 namespace KalaTestProject::Graphics::Vulkan
 {
 	class Render_Vulkan
@@ -20,3 +21,4 @@ namespace KalaTestProject::Graphics::Vulkan
 		static void Redraw();
 	};
 }
+*/

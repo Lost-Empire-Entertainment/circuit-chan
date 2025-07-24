@@ -5,6 +5,7 @@
 
 #pragma once
 
+/*
 #include "graphics/vulkan/shader_vulkan.hpp"
 
 namespace KalaTestProject::Graphics::Vulkan
@@ -28,3 +29,4 @@ namespace KalaTestProject::Graphics::Vulkan
 		static inline Shader_Vulkan* triangleShader{};
 	};
 }
+*/

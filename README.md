@@ -1,8 +1,6 @@
-# KalaTestProject
+# Circuit game
 
-> Due to ongoing rewriting of this project Linux support is not functional. It will be added back before the rewrite is complete once this announcement section is removed.
-
-This is a C++ executable for Windows and Linux (x11 only, wayland not supported) showcasing an example of KalaWindow in an end-user scenario with both OpenGL 3.3 and Vulkan 1.2. KalaCrashHandler has also been added for handy crash reports.
+This is a short 4-day challenge to make a game with KalaWindow. The goal is to make a 1-layer circuit simulator game in "free mode" aka no quests, no goals, just make any kind of a circuit with the given parts. I don't have any electrical engineering background so the logic may be broken or invalid in real world use cases so take this game as a fun hobby project and not a real world simulation.
 
 ---
 

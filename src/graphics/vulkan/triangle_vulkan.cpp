@@ -3,6 +3,7 @@
 //This is free software, and you are welcome to redistribute it under certain conditions.
 //Read LICENSE.md for more information.
 
+/*
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -125,3 +126,4 @@ namespace KalaTestProject::Graphics::Vulkan
 			LogType::LOG_SUCCESS);
 	}
 }
+*/

@@ -14,7 +14,7 @@
 
 //kalawindow
 #include "graphics/opengl/opengl.hpp"
-#include "graphics/vulkan/vulkan.hpp"
+//#include "graphics/vulkan/vulkan.hpp"
 #include "graphics/window.hpp"
 #include "core/input.hpp"
 #include "core/log.hpp"
@@ -22,8 +22,8 @@
 #include "core/core.hpp"
 #include "graphics/opengl/render_opengl.hpp"
 #include "graphics/opengl/triangle_opengl.hpp"
-#include "graphics/vulkan/render_vulkan.hpp"
-#include "graphics/vulkan/triangle_vulkan.hpp"
+//#include "graphics/vulkan/render_vulkan.hpp"
+//#include "graphics/vulkan/triangle_vulkan.hpp"
 
 //kalacrashhandler
 using KalaKit::KalaCrashHandler;
@@ -38,14 +38,14 @@ using KalaWindow::Core::Logger;
 using KalaWindow::Core::LogType;
 using GLVState = KalaWindow::Graphics::OpenGL::VSyncState;
 using KalaWindow::Graphics::OpenGL::Renderer_OpenGL;
-using VKVState = KalaWindow::Graphics::Vulkan::VSyncState;
-using KalaWindow::Graphics::Vulkan::Renderer_Vulkan;
+//using VKVState = KalaWindow::Graphics::Vulkan::VSyncState;
+//using KalaWindow::Graphics::Vulkan::Renderer_Vulkan;
 
 using KalaTestProject::Core::TestProject;
 using KalaTestProject::Graphics::OpenGL::Render_OpenGL;
 using KalaTestProject::Graphics::OpenGL::Triangle_OpenGL;
-using KalaTestProject::Graphics::Vulkan::Render_Vulkan;
-using KalaTestProject::Graphics::Vulkan::Triangle_Vulkan;
+//using KalaTestProject::Graphics::Vulkan::Render_Vulkan;
+//using KalaTestProject::Graphics::Vulkan::Triangle_Vulkan;
 
 using std::thread;
 using std::chrono::milliseconds;
@@ -82,26 +82,21 @@ static void SleepFor(unsigned int ms);
 static Window* mainWindow{};
 
 static kvec2 lastSize{};
-static string renderer{};
 
-static RenderTarget target = RenderTarget::TARGET_VULKAN;
+static RenderTarget target = RenderTarget::TARGET_OPENGL;
 
 namespace KalaTestProject::Core
 {
 	void TestProject::Initialize()
 	{
 		KalaCrashHandler::SetShutdownCallback(Shutdown_Crash);
-		KalaCrashHandler::SetProgramName("TestProject");
+		KalaCrashHandler::SetProgramName("CircuitGame");
 
 		KalaCrashHandler::Initialize();
 
 		Window::SetUserShutdownFunction(Shutdown);
 
-		renderer = target == RenderTarget::TARGET_OPENGL
-			? "OpenGL 3.3"
-			: "Vulkan 1.2";
-
-		string title = "KalaWindow " + renderer + " Test";
+		string title = "CircuitGame";
 		float width = 640;
 		float height = 480;
 
@@ -131,10 +126,12 @@ namespace KalaTestProject::Core
 				"TEST_PROJECT",
 				LogType::LOG_INFO);
 
+			/*
 			if (!Render_Vulkan::Initialize()) return;
 			Renderer_Vulkan::SetVSyncState(
 				VKVState::VSYNC_ON,
 				mainWindow);
+			*/
 		}
 
 		mainWindow->SetMinSize(kvec2{ 400, 300 });
@@ -174,12 +171,14 @@ namespace KalaTestProject::Core
 				{
 					Renderer_OpenGL::SetVSyncState(GLVState::VSYNC_ON);
 				}
+				/*
 				else
 				{
 					Renderer_Vulkan::SetVSyncState(
 						VKVState::VSYNC_ON,
 						mainWindow);
 				}
+				*/
 				
 				Logger::Print(
 					"Set 'vsync state' to 'ON'",
@@ -192,12 +191,14 @@ namespace KalaTestProject::Core
 				{
 					Renderer_OpenGL::SetVSyncState(GLVState::VSYNC_OFF);
 				}
+				/*
 				else
 				{
 					Renderer_Vulkan::SetVSyncState(
 						VKVState::VSYNC_OFF,
 						mainWindow);
 				}
+				*/
 
 				Logger::Print(
 					"Set 'vsync state' to 'OFF'",
@@ -214,12 +215,14 @@ namespace KalaTestProject::Core
 						LogType::LOG_ERROR,
 						2);
 				}
+				/*
 				else
 				{
 					Renderer_Vulkan::SetVSyncState(
 						VKVState::VSYNC_TRIPLE_BUFFERING,
 						mainWindow);
 				}
+				*/
 			}
 
 			if (Input::IsKeyPressed(Key::Num5))
@@ -228,7 +231,7 @@ namespace KalaTestProject::Core
 
 				if (!isDisplayingTitleData)
 				{
-					string title = "KalaWindow " + renderer + " Test";
+					string title = "CircuitGame";
 					if (mainWindow->GetTitle() != title)
 					{
 						mainWindow->SetTitle(title);
@@ -264,10 +267,12 @@ namespace KalaTestProject::Core
 			{
 				Render_OpenGL::Render();
 			}
+			/*
 			else
 			{
 				Render_Vulkan::Render();
 			}
+			*/
 
 			Input::EndFrameUpdate();
 
@@ -282,10 +287,12 @@ namespace KalaTestProject::Core
 		{
 			Triangle_OpenGL::Destroy();
 		}
+		/*
 		else
 		{
 			Triangle_Vulkan::Destroy();
 		}
+		*/
 	}
 
 	void TestProject::Shutdown_Crash()
@@ -352,7 +359,7 @@ void DisplayTitleData()
 			to_string(static_cast<int>(lastSize.x)) + "x" +
 			to_string(static_cast<int>(lastSize.y));
 
-		string title = "KalaWindow " + renderer + " Test [ " + resolution + " ] [ " + fpsStr + " fps ]";
+		string title = "CircuitGame [ " + resolution + " ] [ " + fpsStr + " fps ]";
 		mainWindow->SetTitle(title);
 
 		frameCount = 0;

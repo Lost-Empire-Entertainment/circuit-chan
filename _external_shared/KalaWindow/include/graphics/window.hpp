@@ -77,14 +77,34 @@ namespace KalaWindow::Graphics
 		FILE_FOLDER       //Can select any folder
 	};
 
-	struct Window_OpenGLData
+#ifdef _WIN32
+	struct WindowData
+	{
+		uintptr_t hwnd{};
+		uintptr_t hInstance{};
+		uintptr_t wndProc{};   //WINDOW PROC FOR OPENGL, NOT USED IN VULKAN
+	};
+#elif __linux__
+	struct WindowData
+	{
+		uintptr_t display{};
+		uintptr_t window{};
+		uintptr_t visual{};
+	};
+#endif
+
+	//OpenGL data reusable across this window context
+	struct OpenGLData
 	{
 		uintptr_t hglrc{};      //OPENGL CONTEXT VIA WGL, ONLY USED FOR WINDOWS
 		uintptr_t hdc{};        //OPENGL HANDLE TO DEVICE CONTEXT, ONLY USED FOR WINDOWS
 		uintptr_t glxContext{}; //OPENGL CONTEXT VIA GLX, ONLY USED FOR X11
 		unsigned int lastProgramID{};
 	};
-	struct Window_VulkanData
+
+	/*
+	//Vulkan data reusable across this window context
+	struct VulkanData_Core
 	{
 		//Core surface & swapchain handles
 
@@ -119,41 +139,112 @@ namespace KalaWindow::Graphics
 
 		uintptr_t renderPass{}; //VkRenderPass
 	};
-	struct Window_VulkanShaderData
+
+	//VkOffset2D, contents of offset in VD_VS_VkRect2D
+	struct VD_VS_VkOffset2D
 	{
-		//Vertex input and primitive assembly state
-
-		uintptr_t vertexInputInfo{};   //VkPipelineVertexInputStateCreateInfo
-		uintptr_t inputAssemblyInfo{}; //VkPipelineInputAssemblyStateCreateInfo
-
-		//Viewport and scissor state (dynamic)
-		
-		uintptr_t viewportState{}; //VkPipelineViewportStateCreateInfo
-		uintptr_t dynamicState{};  //VkPipelineDynamicStateCreateInfo
-
-		//Rasterization and multisampling
-
-		uintptr_t rasterizer{};    //VkPipelineRasterizationStateCreateInfo
-		uintptr_t multisampling{}; //VkPipelineMultisampleStateCreateInfo
-
-		//Color blend state for framebuffer output
-
-		uintptr_t colorBlendAttachment{}; //VkPipelineColorBlendAttachmentState
-		uintptr_t colorBlending{};        //VkPipelineColorBlendStateCreateInfo
+		//Horizontal pixel offset, usually 0
+		int32_t x = 0;
+		//Vertical pixel offset, usually 0
+		int32_t y = 0;
+	};
+	//VkExtent2D, contents of extent in VD_VS_VkRect2D
+	struct VD_VS_VkExtent2D
+	{
+		//Width in pixels, usually matches framebuffer width
+		uint32_t width{};
+		//Height in pixels, usually matches framebuffer height
+		uint32_t height{};
+	};
+	//VkViewport, contents of pViewports in VulkanData_ViewportState
+	struct VD_VS_Viewports
+	{
+		//x-coordinate of top-left corner, usually 0.0f
+		float x = 0.0f;
+		//y-coordinate of top-left corner, usually 0.0f
+		float y = 0.0f;
+		//Viewport width, usually matches swapchain width
+		float width{};
+		//Viewport height, usually matches swapchain height
+		float height{};
+		//Minimum depth value, usually 0.0f
+		float minDepth = 0.0f;
+		//Maximum depth value, usually 1.0f
+		float maxDepth = 0.0f;
+	};
+	//VkRect2D, contents of pScissors in VulkanData_ViewportState
+	struct VD_VS_Scissors
+	{
+		//VkOffset2D, struct of VD_VS_VkOffset2D
+		VD_VS_VkOffset2D offset{};
+		//VkExtent2D, struct of VD_VS_VkRect2D
+		VD_VS_VkExtent2D extent{};
+	};
+	//VkPipelineViewportStateCreateInfo
+	struct VulkanData_ViewportState
+	{
+		//VkStructureType, always VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO
+		uint32_t sType = 20;
+		//Extension-specific structure, usually NULL
+		uintptr_t pNext = NULL;
+		//VkPipelineViewportStateCreateFlags, usually 0
+		uint32_t flags = 0;
+		//Number of viewports, usually 1
+		uint32_t viewportCount = 1;
+		//VkViewport, struct to VD_VS_Viewports
+		VD_VS_Viewports pViewports{};
+		//Number of scissors, usually 1
+		uint32_t scissorCount = 1;
+		//VkRect2D, struct to VD_VS_Scissors
+		VD_VS_Scissors pScissors{};
 	};
 
-	struct WindowStruct_Windows
+	//VkPipelineDynamicStateCreateInfo
+	struct VulkanData_DynamicState
 	{
-		uintptr_t hwnd{};
-		uintptr_t hInstance{};
-		uintptr_t wndProc{};   //WINDOW PROC FOR OPENGL, NOT USED IN VULKAN
+		//VkStructureType, always VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO
+		uint32_t sType = 27;
+		//Extension-specific structure, usually NULL
+		uintptr_t pNext = NULL;
+		//VkPipelineDynamicStateCreateFlags, usually 0
+		uint32_t flags = 0;
+		//count of pDynamicStates, usually 2 (viewport and scissor)
+		uint32_t dynamicStateCount = 0;
+		//vector of VkDynamicState enums
+		vector<uint32_t> pDynamicStates{};
 	};
-	struct WindowStruct_X11
+
+	//VkPipelineMultisampleStateCreateInfo
+	struct VulkanData_MultisampleState
 	{
-		uintptr_t display{};
-		uintptr_t window{};
-		uintptr_t visual{};
+		//VkStructureType, always VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO
+		uint32_t sType = 24;
+		//Extension-specific structure, usually NULL
+		uintptr_t pNext = NULL;
+		//VkPipelineMultisampleStateCreateFlags, usually 0
+		uint32_t flags = 0;
+		//VkSampleCountFlagBits enum, usually VK_SAMPLE_COUNT_1_BIT
+		uint32_t rasterizationSamples = 0x00000001;
+		//VkBool32, usually VK_FALSE
+		uint32_t sampleShadingEnable = 0U;
+		//Minimum sample shading value (clamped to [0,1]), usually 0.0f
+		float minSampleShading = 0.0f;
+		//VkSampleMask, usually 0
+		uint32_t pSampleMask = 0;
+		//VkBool32, usually VK_FALSE
+		uint32_t alphaToCoverageEnable = 0U;
+		//VkBool32. usually VK_FALSE
+		uint32_t alphaToOneEnable = 0U;
 	};
+
+	//Window-level shader data passed by the user in its original format
+	struct VulkanShaderWindowData
+	{
+		VulkanData_ViewportState viewportState{};
+		VulkanData_DynamicState dynamicState{};
+		VulkanData_MultisampleState multisampleState{};
+	};
+	*/
 
 	class KALAWINDOW_API Window
 	{
@@ -170,10 +261,12 @@ namespace KalaWindow::Graphics
 		//Set the handle to opengl32.dll
 		static void SetOpenGLLib(uintptr_t newOpenglLib) { openglLib = newOpenglLib; }
 
+		/*
 		//Get the handle to vulkan-1.dll
 		static uintptr_t GetVulkanLib() { return vulkanLib; }
 		//Set the handle to vulkan-1.dll
 		static void SetVulkanLib(uintptr_t newVulkanLib) { vulkanLib = newVulkanLib; }
+		*/
 
 		Window(
 			string title,
@@ -185,36 +278,38 @@ namespace KalaWindow::Graphics
 		}
 
 #ifdef _WIN32
-		WindowStruct_Windows& GetWindow_Windows() { return window_windows; }
-		void SetWindow_Windows(WindowStruct_Windows newWindowStruct)
+		WindowData& GetWindowData() { return window_windows; }
+		void SetWindowData(WindowData newWindowStruct)
 		{
 			window_windows = newWindowStruct;
 		}
 #elif __linux__
-		WindowStruct_X11& GetWindow_X11() { return window_x11; }
-		void SetWindow_X11(WindowStruct_X11 newWindowStruct)
+		WindowData& GetWindowData() { return window_x11; }
+		void SetWindowData(WindowData newWindowStruct)
 		{
 			window_x11 = newWindowStruct;
 		}
 #endif
 
-		Window_OpenGLData& GetOpenGLStruct() { return openglData; }
-		void SetOpenGLStruct(Window_OpenGLData newOpenGLData)
+		OpenGLData& GetOpenGLData() { return openglData; }
+		void SetOpenGLData(OpenGLData newOpenGLData)
 		{
 			openglData = newOpenGLData;
 		}
 
-		Window_VulkanData& GetVulkanStruct() { return vulkanData; }
-		void SetVulkanStruct(Window_VulkanData newVulkanData)
+		/*
+		VulkanData_Core& GetVulkanCoreData() { return vulkanCoreData; }
+		void SetVulkanCoreData(VulkanData_Core newVulkanCoreData)
 		{
-			vulkanData = newVulkanData;
+			vulkanCoreData = newVulkanCoreData;
 		}
 
-		Window_VulkanShaderData& GetVulkanShaderStruct() { return vulkanShaderData; }
-		void SetVulkanShaderStruct(Window_VulkanShaderData newVulkanShaderData)
+		VulkanShaderWindowData& GetVulkanShaderWindowStruct() { return vulkanShaderWindowData; }
+		void SetVulkanShaderWindowStruct(VulkanShaderWindowData newVulkanShaderWindowData)
 		{
-			vulkanShaderData = newVulkanShaderData;
+			vulkanShaderWindowData = newVulkanShaderWindowData;
 		}
+		*/
 
 		const string& GetTitle() const { return title; }
 		void SetTitle(const string& newTitle);
@@ -322,17 +417,17 @@ namespace KalaWindow::Graphics
 		//platform-specific variables
 
 #ifdef _WIN32
-		WindowStruct_Windows window_windows{}; //The windows data of this window
+		WindowData window_windows{}; //The windows data of this window
 #elif __linux__
-		WindowStruct_X11 window_x11{};         //The X11 data of this window
+		WindowData window_x11{};         //The X11 data of this window
 #endif
 
 		//vendor-specific variables
 
-		Window_OpenGLData openglData{}; //The OpenGL data of this window
+		OpenGLData openglData{}; //The OpenGL data of this window
 
-		Window_VulkanData vulkanData{};             //The Vulkan data of this window
-		Window_VulkanShaderData vulkanShaderData{}; //The Vulkan shader data of this window
+		//VulkanData_Core vulkanCoreData{}; //The core Vulkan data of this window
+		//VulkanShaderWindowData vulkanShaderWindowData{}; //Window-level VkPipeline data
 
 		function<void()> resizeCallback{};
 	};
