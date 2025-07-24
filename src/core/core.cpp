@@ -1,0 +1,361 @@
+//Copyright(C) 2025 Lost Empire Entertainment
+//This program comes with ABSOLUTELY NO WARRANTY.
+//This is free software, and you are welcome to redistribute it under certain conditions.
+//Read LICENSE.md for more information.
+
+#include <thread>
+#include <chrono>
+#include <memory>
+#include <string>
+#include <sstream>
+
+//kalacrashhandler
+#include "crashHandler.hpp"
+
+//kalawindow
+#include "graphics/opengl/opengl.hpp"
+#include "graphics/vulkan/vulkan.hpp"
+#include "graphics/window.hpp"
+#include "core/input.hpp"
+#include "core/log.hpp"
+
+#include "core/core.hpp"
+#include "graphics/opengl/render_opengl.hpp"
+#include "graphics/opengl/triangle_opengl.hpp"
+#include "graphics/vulkan/render_vulkan.hpp"
+#include "graphics/vulkan/triangle_vulkan.hpp"
+
+//kalacrashhandler
+using KalaKit::KalaCrashHandler;
+
+//kalawindow
+using KalaWindow::Graphics::ShutdownState;
+using KalaWindow::Graphics::Window;
+using KalaWindow::Graphics::WindowState;
+using KalaWindow::Core::Input;
+using KalaWindow::Core::Key;
+using KalaWindow::Core::Logger;
+using KalaWindow::Core::LogType;
+using GLVState = KalaWindow::Graphics::OpenGL::VSyncState;
+using KalaWindow::Graphics::OpenGL::Renderer_OpenGL;
+using VKVState = KalaWindow::Graphics::Vulkan::VSyncState;
+using KalaWindow::Graphics::Vulkan::Renderer_Vulkan;
+
+using KalaTestProject::Core::TestProject;
+using KalaTestProject::Graphics::OpenGL::Render_OpenGL;
+using KalaTestProject::Graphics::OpenGL::Triangle_OpenGL;
+using KalaTestProject::Graphics::Vulkan::Render_Vulkan;
+using KalaTestProject::Graphics::Vulkan::Triangle_Vulkan;
+
+using std::thread;
+using std::chrono::milliseconds;
+using std::this_thread::sleep_for;
+using std::chrono::steady_clock;
+using dur = std::chrono::steady_clock::duration;
+using std::chrono::time_point;
+using std::chrono::duration;
+using std::unique_ptr;
+using std::make_unique;
+using std::string;
+using std::to_string;
+using std::stringstream;
+
+enum class RenderTarget
+{
+	TARGET_OPENGL,
+	TARGET_VULKAN
+};
+
+static inline bool isInitialized = false;
+static inline bool isRunning = false;
+
+static inline unsigned int activeSleep{};
+static inline unsigned int idleSleep{};
+
+static bool canSleep = true;
+
+static bool isDisplayingTitleData = false;
+static void DisplayTitleData();
+
+static void SleepFor(unsigned int ms);
+
+static Window* mainWindow{};
+
+static kvec2 lastSize{};
+static string renderer{};
+
+static RenderTarget target = RenderTarget::TARGET_VULKAN;
+
+namespace KalaTestProject::Core
+{
+	void TestProject::Initialize()
+	{
+		KalaCrashHandler::SetShutdownCallback(Shutdown_Crash);
+		KalaCrashHandler::SetProgramName("TestProject");
+
+		KalaCrashHandler::Initialize();
+
+		Window::SetUserShutdownFunction(Shutdown);
+
+		renderer = target == RenderTarget::TARGET_OPENGL
+			? "OpenGL 3.3"
+			: "Vulkan 1.2";
+
+		string title = "KalaWindow " + renderer + " Test";
+		float width = 640;
+		float height = 480;
+
+		unique_ptr<Window> newWindow = Window::Initialize(
+			title,
+			kvec2{ width, height });
+		mainWindow = newWindow.get();
+
+		if (mainWindow == nullptr) return;
+
+		if (!Input::Initialize(mainWindow)) return;
+
+		if (target == RenderTarget::TARGET_OPENGL)
+		{
+			Logger::Print(
+				"Initializing OpenGL...",
+				"TEST_PROJECT",
+				LogType::LOG_INFO);
+
+			if (!Render_OpenGL::Initialize()) return;
+			Renderer_OpenGL::SetVSyncState(GLVState::VSYNC_ON);
+		}
+		else
+		{
+			Logger::Print(
+				"Initializing Vulkan...",
+				"TEST_PROJECT",
+				LogType::LOG_INFO);
+
+			if (!Render_Vulkan::Initialize()) return;
+			Renderer_Vulkan::SetVSyncState(
+				VKVState::VSYNC_ON,
+				mainWindow);
+		}
+
+		mainWindow->SetMinSize(kvec2{ 400, 300 });
+		mainWindow->SetMaxSize(kvec2{ 3840, 2160 });
+
+		stringstream ss{};
+		ss << "\n====================\n"
+			<< "1: set vsync on\n"
+			<< "2: set vsync off\n"
+			<< "3: set vsync to triple buffering (vulkan only)\n"
+			<< "4: toggle sleep\n"
+			<< "5: toggle fps and resolution in title\n"
+			<< "====================";
+
+		Logger::Print(
+			ss.str(),
+			"TEST_PROJECT",
+			LogType::LOG_INFO);
+
+		isInitialized = true;
+		isRunning = true;
+
+		mainWindow->SetWindowState(WindowState::WINDOW_NORMAL);
+
+		TestProject::Update();
+	}
+
+	void TestProject::Update()
+	{
+		while (isRunning)
+		{
+			Window::Update(mainWindow);
+
+			if (Input::IsKeyPressed(Key::Num1))
+			{
+				if (target == RenderTarget::TARGET_OPENGL)
+				{
+					Renderer_OpenGL::SetVSyncState(GLVState::VSYNC_ON);
+				}
+				else
+				{
+					Renderer_Vulkan::SetVSyncState(
+						VKVState::VSYNC_ON,
+						mainWindow);
+				}
+				
+				Logger::Print(
+					"Set 'vsync state' to 'ON'",
+					"CORE",
+					LogType::LOG_DEBUG);
+			}
+			if (Input::IsKeyPressed(Key::Num2))
+			{
+				if (target == RenderTarget::TARGET_OPENGL)
+				{
+					Renderer_OpenGL::SetVSyncState(GLVState::VSYNC_OFF);
+				}
+				else
+				{
+					Renderer_Vulkan::SetVSyncState(
+						VKVState::VSYNC_OFF,
+						mainWindow);
+				}
+
+				Logger::Print(
+					"Set 'vsync state' to 'OFF'",
+					"CORE",
+					LogType::LOG_DEBUG);
+			}
+			if (Input::IsKeyPressed(Key::Num3))
+			{
+				if (target == RenderTarget::TARGET_OPENGL)
+				{
+					Logger::Print(
+						"Cannot set 'vsync state' to 'TRIPLE BUFFERING' because OpenGL does not have it!",
+						"CORE",
+						LogType::LOG_ERROR,
+						2);
+				}
+				else
+				{
+					Renderer_Vulkan::SetVSyncState(
+						VKVState::VSYNC_TRIPLE_BUFFERING,
+						mainWindow);
+				}
+			}
+
+			if (Input::IsKeyPressed(Key::Num5))
+			{
+				isDisplayingTitleData = !isDisplayingTitleData;
+
+				if (!isDisplayingTitleData)
+				{
+					string title = "KalaWindow " + renderer + " Test";
+					if (mainWindow->GetTitle() != title)
+					{
+						mainWindow->SetTitle(title);
+					}
+				}
+
+				string newDisplayTitleData = isDisplayingTitleData
+					? "Enabled 'display title data'"
+					: "Disabled 'display title data'";
+
+				Logger::Print(
+					newDisplayTitleData,
+					"TEST_PROJECT",
+					LogType::LOG_DEBUG);
+			}
+			DisplayTitleData();
+
+			if (Input::IsKeyPressed(Key::Num4))
+			{
+				canSleep = !canSleep;
+
+				string newSleepState = canSleep
+					? "Enabled 'canSleep'"
+					: "Disabled 'canSleep'";
+
+				Logger::Print(
+					newSleepState,
+					"TEST_PROJECT",
+					LogType::LOG_DEBUG);
+			}
+
+			if (target == RenderTarget::TARGET_OPENGL)
+			{
+				Render_OpenGL::Render();
+			}
+			else
+			{
+				Render_Vulkan::Render();
+			}
+
+			Input::EndFrameUpdate();
+
+			unsigned int sleepTime = mainWindow->IsIdle() ? idleSleep : activeSleep;
+			SleepFor(sleepTime);
+		}
+	}
+
+	void TestProject::Shutdown()
+	{
+		if (target == RenderTarget::TARGET_OPENGL)
+		{
+			Triangle_OpenGL::Destroy();
+		}
+		else
+		{
+			Triangle_Vulkan::Destroy();
+		}
+	}
+
+	void TestProject::Shutdown_Crash()
+	{
+		Window::Shutdown(
+			ShutdownState::SHUTDOWN_CRITICAL,
+			false);
+	}
+}
+
+void SleepFor(unsigned int ms)
+{
+	if (!canSleep) return;
+
+	milliseconds convertedMS = milliseconds(ms);
+
+	time_point<steady_clock> now = steady_clock::now();
+	dur frameDuration = now - TestProject::lastFrameTime;
+
+	if (frameDuration < convertedMS) sleep_for(convertedMS - frameDuration);
+	TestProject::lastFrameTime = steady_clock::now();
+}
+
+void DisplayTitleData()
+{
+	if (!isDisplayingTitleData) return;
+
+	static int frameCount = 0;
+
+	static auto startTime = steady_clock::now();
+	static auto lastLogTime = startTime;
+
+	frameCount++;
+
+	auto now = steady_clock::now();
+	duration<double> totalElapsed = now - startTime;
+	duration<double> logElapsed = now - lastLogTime;
+
+	if (logElapsed.count() >= 0.1)
+	{
+		double seconds = logElapsed.count();
+		double fps = frameCount / seconds;  // use exact duration
+
+		char buffer[32];
+		snprintf(buffer, sizeof(buffer), "%.8f", fps);
+		char* dot = strchr(buffer, '.');
+		if (dot && *(dot + 3)) *(dot + 3) = '\0';
+
+		string fpsStr(buffer);
+
+		/*
+		cout << "[+"
+			<< static_cast<int>(totalElapsed.count())
+			<< "s] Frames: " << fpsStr << "\n";
+		*/
+
+		kvec2 winSize = mainWindow->GetSize();
+		if (lastSize.x != winSize.x
+			|| lastSize.y != winSize.y)
+		{
+			lastSize = winSize;
+		}
+		string resolution =
+			to_string(static_cast<int>(lastSize.x)) + "x" +
+			to_string(static_cast<int>(lastSize.y));
+
+		string title = "KalaWindow " + renderer + " Test [ " + resolution + " ] [ " + fpsStr + " fps ]";
+		mainWindow->SetTitle(title);
+
+		frameCount = 0;
+		lastLogTime = now;
+	}
+}
