@@ -11,3 +11,4 @@ This project also used [KalaTestProject](https://github.com/KalaKit/KalaTestProj
 - [KalaWindow](https://github.com/KalaKit/KalaWindow)
 - [KalaCrashHandler](https://github.com/KalaKit/KalaCrashHandler)
 - [GLM](https://github.com/g-truc/glm)
+- [stb_image](https://github.com/nothings/stb/blob/master/stb_image.h)

@@ -11,20 +11,20 @@ namespace KalaTestProject::Graphics
 {
 	using KalaWindow::Graphics::OpenGL::Shader_OpenGL;
 
-	class Triangle_OpenGL
+	class Cube
 	{
 	public:
 		static bool Initialize();
 
-		static void SetTriangleShader(Shader_OpenGL* newTriangleShader)
+		static void SetCubeShader(Shader_OpenGL* newCubeShader)
 		{
-			triangleShader = newTriangleShader;
+			cubeShader = newCubeShader;
 		}
-		static Shader_OpenGL* GetTriangleShader() { return triangleShader; }
+		static Shader_OpenGL* GetCubeShader() { return cubeShader; }
 
 		static void Render();
 		static void Destroy();
 	private:
-		static inline Shader_OpenGL* triangleShader{};
+		static inline Shader_OpenGL* cubeShader{};
 	};
 }

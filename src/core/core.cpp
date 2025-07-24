@@ -17,10 +17,10 @@
 #include "graphics/window.hpp"
 #include "core/input.hpp"
 #include "core/log.hpp"
-
 #include "core/core.hpp"
 #include "graphics/render.hpp"
-#include "graphics/triangle_opengl.hpp"
+#include "graphics/cube.hpp"
+#include "graphics/texture.hpp"
 
 //kalacrashhandler
 using KalaKit::KalaCrashHandler;
@@ -38,7 +38,8 @@ using KalaWindow::Graphics::OpenGL::Renderer_OpenGL;
 
 using KalaTestProject::Core::TestProject;
 using KalaTestProject::Graphics::Render;
-using KalaTestProject::Graphics::Triangle_OpenGL;
+using KalaTestProject::Graphics::Cube;
+using KalaTestProject::Graphics::Texture;
 
 using std::thread;
 using std::chrono::milliseconds;
@@ -209,7 +210,8 @@ namespace KalaTestProject::Core
 
 	void TestProject::Shutdown()
 	{
-		Triangle_OpenGL::Destroy();
+		Cube::Destroy();
+		Texture::createdTextures.clear();
 	}
 
 	void TestProject::Shutdown_Crash()

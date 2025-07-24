@@ -41,6 +41,7 @@ set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
 set(EXT_WINDOW_DIR "${CMAKE_SOURCE_DIR}/_external_shared/KalaWindow")
 set(EXT_CRASH_DIR "${CMAKE_SOURCE_DIR}/_external_shared/KalaCrashHandler")
 set(EXT_GLM_DIR "${CMAKE_SOURCE_DIR}/_external_shared/glm")
+set(EXT_STB_IMAGE_DIR "${CMAKE_SOURCE_DIR}/_external_shared/stb_image")
 
 # Dependencies
 # find_package(OpenGL REQUIRED)
@@ -98,6 +99,7 @@ target_include_directories(CircuitGame PRIVATE
     "${EXT_WINDOW_DIR}/include"
     "${EXT_CRASH_DIR}/include"
 	"${EXT_GLM_DIR}"
+	"${EXT_STB_IMAGE_DIR}"
 )
 
 # Preprocessor Defines

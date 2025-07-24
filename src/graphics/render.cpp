@@ -18,7 +18,7 @@
 #include "gtc/type_ptr.hpp"
 
 #include "graphics/render.hpp"
-#include "graphics/triangle_opengl.hpp"
+#include "graphics/cube.hpp"
 
 //kalawindow
 using KalaWindow::Graphics::Window;
@@ -28,7 +28,7 @@ using KalaWindow::Core::LogType;
 using KalaWindow::Graphics::OpenGL::Shader_OpenGL;
 using KalaWindow::Graphics::OpenGL::OpenGLCore;
 
-using KalaTestProject::Graphics::Triangle_OpenGL;
+using KalaTestProject::Graphics::Cube;
 
 using glm::mat4;
 using glm::vec3;
@@ -52,7 +52,7 @@ namespace KalaTestProject::Graphics
 
 		mainWindow->SetRedrawCallback(Redraw);
 
-		if (!Triangle_OpenGL::Initialize()) return false;
+		if (!Cube::Initialize()) return false;
 
 		mainWindow->SetResizeCallback(ResizeProjectionMatrix);
 		ResizeProjectionMatrix();
@@ -70,7 +70,7 @@ namespace KalaTestProject::Graphics
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f); //dark gray
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		Triangle_OpenGL::Render();
+		Cube::Render();
 
 		Renderer_OpenGL::SwapOpenGLBuffers(mainWindow);
 	}
@@ -78,7 +78,7 @@ namespace KalaTestProject::Graphics
 
 void ResizeProjectionMatrix()
 {
-	Shader_OpenGL* shader = Triangle_OpenGL::GetTriangleShader();
+	Shader_OpenGL* shader = Cube::GetCubeShader();
 	if (!shader) return;
 
 	kvec2 framebufferSize = mainWindow->GetSize();
@@ -103,12 +103,11 @@ void ResizeProjectionMatrix()
 	//upload projection
 
 	int projLoc = glGetUniformLocation(program, "uProjection");
-	/*
-	Logger::Print(
-		"uProjection uniform location: " + to_string(projLoc),
-		"Render",
-		LogType::LOG_DEBUG);
-	*/
+
+	//Logger::Print(
+	//	  "uProjection uniform location: " + to_string(projLoc),
+	//	  "Render",
+	//	  LogType::LOG_DEBUG);
 
 	if (projLoc >= 0)
 	{
@@ -122,12 +121,11 @@ void ResizeProjectionMatrix()
 	//upload model
 
 	int modelLoc = glGetUniformLocation(program, "uModel");
-	/*
-	Logger::Print(
-		"uModel uniform location: " + to_string(modelLoc),
-		"Render",
-		LogType::LOG_DEBUG);
-	*/
+	
+	//Logger::Print(
+	//	  "uModel uniform location: " + to_string(modelLoc),
+	//	  "Render",
+	//	  LogType::LOG_DEBUG);
 
 	if (modelLoc >= 0)
 	{
