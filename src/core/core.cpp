@@ -82,8 +82,8 @@ namespace KalaTestProject::Core
 		Window::SetUserShutdownFunction(Shutdown);
 
 		string title = "CircuitGame";
-		float width = 640;
-		float height = 480;
+		float width = 800;
+		float height = 600;
 
 		unique_ptr<Window> newWindow = Window::Initialize(
 			title,
@@ -102,7 +102,7 @@ namespace KalaTestProject::Core
 		if (!Render::Initialize()) return;
 		Renderer_OpenGL::SetVSyncState(GLVState::VSYNC_ON);
 
-		mainWindow->SetMinSize(kvec2{ 400, 300 });
+		mainWindow->SetMinSize(kvec2{ 800, 600 });
 		mainWindow->SetMaxSize(kvec2{ 3840, 2160 });
 
 		stringstream ss{};
@@ -122,7 +122,7 @@ namespace KalaTestProject::Core
 		isInitialized = true;
 		isRunning = true;
 
-		mainWindow->SetWindowState(WindowState::WINDOW_NORMAL);
+		mainWindow->SetWindowState(WindowState::WINDOW_MAXIMIZE);
 
 		TestProject::Update();
 	}
