@@ -17,8 +17,8 @@
 #include "gtc/matrix_transform.hpp"
 #include "gtc/type_ptr.hpp"
 
-#include "graphics/opengl/render_opengl.hpp"
-#include "graphics/opengl/triangle_opengl.hpp"
+#include "graphics/render.hpp"
+#include "graphics/triangle_opengl.hpp"
 
 //kalawindow
 using KalaWindow::Graphics::Window;
@@ -28,7 +28,7 @@ using KalaWindow::Core::LogType;
 using KalaWindow::Graphics::OpenGL::Shader_OpenGL;
 using KalaWindow::Graphics::OpenGL::OpenGLCore;
 
-using KalaTestProject::Graphics::OpenGL::Triangle_OpenGL;
+using KalaTestProject::Graphics::Triangle_OpenGL;
 
 using glm::mat4;
 using glm::vec3;
@@ -42,9 +42,9 @@ static Window* mainWindow{};
 
 static void ResizeProjectionMatrix();
 
-namespace KalaTestProject::Graphics::OpenGL
+namespace KalaTestProject::Graphics
 {
-	bool Render_OpenGL::Initialize()
+	bool Render::Initialize()
 	{
 		mainWindow = Window::windows.front();
 
@@ -60,12 +60,12 @@ namespace KalaTestProject::Graphics::OpenGL
 		return true;
 	}
 
-	void Render_OpenGL::Render()
+	void Render::Update()
 	{
 		if (!mainWindow->IsIdle()) Redraw();
 	}
 
-	void Render_OpenGL::Redraw()
+	void Render::Redraw()
 	{
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f); //dark gray
 		glClear(GL_COLOR_BUFFER_BIT);
@@ -106,7 +106,7 @@ void ResizeProjectionMatrix()
 	/*
 	Logger::Print(
 		"uProjection uniform location: " + to_string(projLoc),
-		"RENDER_OPENGL",
+		"Render",
 		LogType::LOG_DEBUG);
 	*/
 
@@ -125,7 +125,7 @@ void ResizeProjectionMatrix()
 	/*
 	Logger::Print(
 		"uModel uniform location: " + to_string(modelLoc),
-		"RENDER_OPENGL",
+		"Render",
 		LogType::LOG_DEBUG);
 	*/
 

@@ -5,16 +5,16 @@
 
 #pragma once
 
-namespace KalaTestProject::Graphics::OpenGL
+namespace KalaTestProject::Graphics
 {
-	class Render_OpenGL
+	class Render
 	{
 	public:
 		//Initializes the render loop
 		static bool Initialize();
 
 		//The full graphical render loop of this program
-		static void Render();
+		static void Update();
 
 		//What to call when we need to redraw during rescaling the window etc
 		static void Redraw();

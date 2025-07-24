@@ -14,16 +14,13 @@
 
 //kalawindow
 #include "graphics/opengl/opengl.hpp"
-//#include "graphics/vulkan/vulkan.hpp"
 #include "graphics/window.hpp"
 #include "core/input.hpp"
 #include "core/log.hpp"
 
 #include "core/core.hpp"
-#include "graphics/opengl/render_opengl.hpp"
-#include "graphics/opengl/triangle_opengl.hpp"
-//#include "graphics/vulkan/render_vulkan.hpp"
-//#include "graphics/vulkan/triangle_vulkan.hpp"
+#include "graphics/render.hpp"
+#include "graphics/triangle_opengl.hpp"
 
 //kalacrashhandler
 using KalaKit::KalaCrashHandler;
@@ -38,14 +35,10 @@ using KalaWindow::Core::Logger;
 using KalaWindow::Core::LogType;
 using GLVState = KalaWindow::Graphics::OpenGL::VSyncState;
 using KalaWindow::Graphics::OpenGL::Renderer_OpenGL;
-//using VKVState = KalaWindow::Graphics::Vulkan::VSyncState;
-//using KalaWindow::Graphics::Vulkan::Renderer_Vulkan;
 
 using KalaTestProject::Core::TestProject;
-using KalaTestProject::Graphics::OpenGL::Render_OpenGL;
-using KalaTestProject::Graphics::OpenGL::Triangle_OpenGL;
-//using KalaTestProject::Graphics::Vulkan::Render_Vulkan;
-//using KalaTestProject::Graphics::Vulkan::Triangle_Vulkan;
+using KalaTestProject::Graphics::Render;
+using KalaTestProject::Graphics::Triangle_OpenGL;
 
 using std::thread;
 using std::chrono::milliseconds;
@@ -59,12 +52,6 @@ using std::make_unique;
 using std::string;
 using std::to_string;
 using std::stringstream;
-
-enum class RenderTarget
-{
-	TARGET_OPENGL,
-	TARGET_VULKAN
-};
 
 static inline bool isInitialized = false;
 static inline bool isRunning = false;
@@ -82,8 +69,6 @@ static void SleepFor(unsigned int ms);
 static Window* mainWindow{};
 
 static kvec2 lastSize{};
-
-static RenderTarget target = RenderTarget::TARGET_OPENGL;
 
 namespace KalaTestProject::Core
 {
@@ -109,30 +94,13 @@ namespace KalaTestProject::Core
 
 		if (!Input::Initialize(mainWindow)) return;
 
-		if (target == RenderTarget::TARGET_OPENGL)
-		{
-			Logger::Print(
-				"Initializing OpenGL...",
-				"TEST_PROJECT",
-				LogType::LOG_INFO);
+		Logger::Print(
+			"Initializing OpenGL...",
+			"TEST_PROJECT",
+			LogType::LOG_INFO);
 
-			if (!Render_OpenGL::Initialize()) return;
-			Renderer_OpenGL::SetVSyncState(GLVState::VSYNC_ON);
-		}
-		else
-		{
-			Logger::Print(
-				"Initializing Vulkan...",
-				"TEST_PROJECT",
-				LogType::LOG_INFO);
-
-			/*
-			if (!Render_Vulkan::Initialize()) return;
-			Renderer_Vulkan::SetVSyncState(
-				VKVState::VSYNC_ON,
-				mainWindow);
-			*/
-		}
+		if (!Render::Initialize()) return;
+		Renderer_OpenGL::SetVSyncState(GLVState::VSYNC_ON);
 
 		mainWindow->SetMinSize(kvec2{ 400, 300 });
 		mainWindow->SetMaxSize(kvec2{ 3840, 2160 });
@@ -167,18 +135,7 @@ namespace KalaTestProject::Core
 
 			if (Input::IsKeyPressed(Key::Num1))
 			{
-				if (target == RenderTarget::TARGET_OPENGL)
-				{
-					Renderer_OpenGL::SetVSyncState(GLVState::VSYNC_ON);
-				}
-				/*
-				else
-				{
-					Renderer_Vulkan::SetVSyncState(
-						VKVState::VSYNC_ON,
-						mainWindow);
-				}
-				*/
+				Renderer_OpenGL::SetVSyncState(GLVState::VSYNC_ON);
 				
 				Logger::Print(
 					"Set 'vsync state' to 'ON'",
@@ -187,18 +144,7 @@ namespace KalaTestProject::Core
 			}
 			if (Input::IsKeyPressed(Key::Num2))
 			{
-				if (target == RenderTarget::TARGET_OPENGL)
-				{
-					Renderer_OpenGL::SetVSyncState(GLVState::VSYNC_OFF);
-				}
-				/*
-				else
-				{
-					Renderer_Vulkan::SetVSyncState(
-						VKVState::VSYNC_OFF,
-						mainWindow);
-				}
-				*/
+				Renderer_OpenGL::SetVSyncState(GLVState::VSYNC_OFF);
 
 				Logger::Print(
 					"Set 'vsync state' to 'OFF'",
@@ -207,22 +153,11 @@ namespace KalaTestProject::Core
 			}
 			if (Input::IsKeyPressed(Key::Num3))
 			{
-				if (target == RenderTarget::TARGET_OPENGL)
-				{
-					Logger::Print(
-						"Cannot set 'vsync state' to 'TRIPLE BUFFERING' because OpenGL does not have it!",
-						"CORE",
-						LogType::LOG_ERROR,
-						2);
-				}
-				/*
-				else
-				{
-					Renderer_Vulkan::SetVSyncState(
-						VKVState::VSYNC_TRIPLE_BUFFERING,
-						mainWindow);
-				}
-				*/
+				Logger::Print(
+					"Cannot set 'vsync state' to 'TRIPLE BUFFERING' because OpenGL does not have it!",
+					"CORE",
+					LogType::LOG_ERROR,
+					2);
 			}
 
 			if (Input::IsKeyPressed(Key::Num5))
@@ -263,16 +198,7 @@ namespace KalaTestProject::Core
 					LogType::LOG_DEBUG);
 			}
 
-			if (target == RenderTarget::TARGET_OPENGL)
-			{
-				Render_OpenGL::Render();
-			}
-			/*
-			else
-			{
-				Render_Vulkan::Render();
-			}
-			*/
+			Render::Update();
 
 			Input::EndFrameUpdate();
 
@@ -283,16 +209,7 @@ namespace KalaTestProject::Core
 
 	void TestProject::Shutdown()
 	{
-		if (target == RenderTarget::TARGET_OPENGL)
-		{
-			Triangle_OpenGL::Destroy();
-		}
-		/*
-		else
-		{
-			Triangle_Vulkan::Destroy();
-		}
-		*/
+		Triangle_OpenGL::Destroy();
 	}
 
 	void TestProject::Shutdown_Crash()

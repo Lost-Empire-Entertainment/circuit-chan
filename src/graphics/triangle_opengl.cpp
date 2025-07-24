@@ -15,7 +15,7 @@
 #include "graphics/opengl/shader_opengl.hpp"
 #include "graphics/opengl/opengl_core.hpp"
 
-#include "graphics/opengl/triangle_opengl.hpp"
+#include "graphics/triangle_opengl.hpp"
 
 using KalaWindow::Graphics::Window;
 using KalaWindow::Graphics::ShutdownState;
@@ -43,7 +43,7 @@ static Window* mainWindow{};
 
 static Shader_OpenGL* triangleShader{};
 
-namespace KalaTestProject::Graphics::OpenGL
+namespace KalaTestProject::Graphics
 {
 	bool Triangle_OpenGL::Initialize()
 	{

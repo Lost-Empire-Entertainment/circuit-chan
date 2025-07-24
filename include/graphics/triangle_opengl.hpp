@@ -5,28 +5,26 @@
 
 #pragma once
 
-/*
-#include "graphics/vulkan/shader_vulkan.hpp"
+#include "graphics/opengl/shader_opengl.hpp"
 
-namespace KalaTestProject::Graphics::Vulkan
+namespace KalaTestProject::Graphics
 {
-	using KalaWindow::Graphics::Vulkan::Shader_Vulkan;
+	using KalaWindow::Graphics::OpenGL::Shader_OpenGL;
 
-	class Triangle_Vulkan
+	class Triangle_OpenGL
 	{
 	public:
 		static bool Initialize();
 
-		static void SetTriangleShader(Shader_Vulkan* newTriangleShader)
+		static void SetTriangleShader(Shader_OpenGL* newTriangleShader)
 		{
 			triangleShader = newTriangleShader;
 		}
-		static Shader_Vulkan* GetTriangleShader() { return triangleShader; }
+		static Shader_OpenGL* GetTriangleShader() { return triangleShader; }
 
 		static void Render();
 		static void Destroy();
 	private:
-		static inline Shader_Vulkan* triangleShader{};
+		static inline Shader_OpenGL* triangleShader{};
 	};
 }
-*/
