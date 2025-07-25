@@ -187,6 +187,8 @@ TextureCheckResult IsValidTexture(
 	const string& texturePath,
 	const unordered_map<string, unique_ptr<Texture>>& createdTextures)
 {
+	//texture name must not be empty
+
 	if (textureName.empty())
 	{
 		string title = "Texture error [texture]";
@@ -194,6 +196,9 @@ TextureCheckResult IsValidTexture(
 
 		ForceClose(title, reason);
 	}
+
+	//texture path must not be empty
+
 	if (texturePath.empty())
 	{
 		string title = "Texture error [texture]";
@@ -204,8 +209,9 @@ TextureCheckResult IsValidTexture(
 
 	string texturePathName = path(texturePath).filename().string();
 
-	if (!exists(texturePath)
-		|| texturePath.empty())
+	//texture file must exist
+
+	if (!exists(texturePath))
 	{
 		string title = "Texture error [texture]";
 		string reason = "Texture '" + textureName + "' path '" + texturePathName + "' does not exist!";
@@ -221,6 +227,8 @@ TextureCheckResult IsValidTexture(
 		".jpg",
 		".jpeg"
 	};
+
+	//texture file must have an extension
 
 	if (!path(texturePath).has_extension())
 	{
@@ -239,6 +247,8 @@ TextureCheckResult IsValidTexture(
 			thisExtension)
 		!= validExtensions.end();
 
+	//texture file must have a valid extension
+
 	if (!isExtensionValid)
 	{
 		string title = "Texture error [texture]";
@@ -248,6 +258,8 @@ TextureCheckResult IsValidTexture(
 
 		return TextureCheckResult::RESULT_INVALID;
 	}
+
+	//pass existing texture if one with the same name or path already exists
 
 	for (const auto& [key, value] : createdTextures)
 	{
