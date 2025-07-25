@@ -91,7 +91,7 @@ namespace CircuitGame::Graphics
 		TextureData textureData =
 		{
 			.textureName = "texture_cube",
-			.texturePath = path(current_path() / "files" / "textures" / "cube.png").string()
+			.texturePath = path(current_path() / "files" / "textures" / "cube.jpg").string()
 		};
 		textures.push_back(textureData);
 		if (!InitializeTextures(textures)) return false;

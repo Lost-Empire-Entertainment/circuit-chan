@@ -79,7 +79,7 @@ namespace CircuitGame::Graphics
 		}
 
 		Logger::Print(
-			"Creating texture '" + textureName + "'.",
+			"Loading texture '" + textureName + "'.",
 			"TEXTURE",
 			LogType::LOG_INFO);
 
@@ -120,7 +120,7 @@ namespace CircuitGame::Graphics
 		if (!data)
 		{
 			Logger::Print(
-				"Failed to create texture '" + texturePath + "'!",
+				"Failed to load texture '" + texturePath + "'!",
 				"TEXTURE",
 				LogType::LOG_ERROR,
 				2);
@@ -145,7 +145,7 @@ namespace CircuitGame::Graphics
 		Render::createdTextures[textureName] = move(tex);
 
 		Logger::Print(
-			"Created texture '" + texturePath + "'!",
+			"Loaded texture '" + texturePath + "'!",
 			"TEXTURE",
 			LogType::LOG_SUCCESS);
 
@@ -190,14 +190,14 @@ TextureCheckResult IsValidTexture(
 	if (textureName.empty())
 	{
 		string title = "Texture error [texture]";
-		string reason = "Cannot create a texture with no name!";
+		string reason = "Cannot load a texture with no name!";
 
 		ForceClose(title, reason);
 	}
 	if (texturePath.empty())
 	{
 		string title = "Texture error [texture]";
-		string reason = "Cannot create a texture with no path!";
+		string reason = "Cannot load a texture with no path!";
 
 		ForceClose(title, reason);
 	}
@@ -225,7 +225,7 @@ TextureCheckResult IsValidTexture(
 	if (!path(texturePath).has_extension())
 	{
 		string title = "Texture error [texture]";
-		string reason = "Texture '" + textureName + "' does not have an extension. You must use png, jpg or jpeg!";
+		string reason = "Texture '" + textureName + "' has no extension. You must use png, jpg or jpeg!";
 
 		ForceClose(title, reason);
 
