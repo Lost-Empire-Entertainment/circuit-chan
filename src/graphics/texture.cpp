@@ -54,6 +54,11 @@ namespace CircuitGame::Graphics
 			return nullptr;
 		}
 
+		Logger::Print(
+			"Creating texture '" + textureName + "'.",
+			"TEXTURE",
+			LogType::LOG_INFO);
+
 		unsigned int newTextureID{};
 		glGenTextures(1, &newTextureID);
 		glBindTexture(GL_TEXTURE_2D, newTextureID);
@@ -91,7 +96,7 @@ namespace CircuitGame::Graphics
 		if (!data)
 		{
 			Logger::Print(
-				"Failed to load texture '" + texturePath + "'!",
+				"Failed to create texture '" + texturePath + "'!",
 				"TEXTURE",
 				LogType::LOG_ERROR,
 				2);
@@ -116,7 +121,7 @@ namespace CircuitGame::Graphics
 		Render::createdTextures[textureName] = move(tex);
 
 		Logger::Print(
-			"Loaded texture '" + texturePath + "'!",
+			"Created texture '" + texturePath + "'!",
 			"TEXTURE",
 			LogType::LOG_SUCCESS);
 

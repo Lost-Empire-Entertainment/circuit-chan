@@ -16,6 +16,13 @@ namespace CircuitGame::GameObjects
 
 	using KalaWindow::Graphics::OpenGL::Shader_OpenGL;
 
+	enum class GameObjectType
+	{
+		cube,
+		pointLight,
+		dirLight
+	};
+
 	class GameObject
 	{
 	public:
@@ -28,6 +35,9 @@ namespace CircuitGame::GameObjects
 
 		bool CanUpdate() const { return canUpdate; }
 		void SetUpdate(bool newCanUpdate) { canUpdate = newCanUpdate; }
+
+		GameObjectType GetGameObjectType() const { return type; }
+		void SetGameObjectType(GameObjectType newType) { type = newType; }
 
 		string& GetName() { return name; }
 		void SetName(const string& newName) { name = newName; }
@@ -49,6 +59,8 @@ namespace CircuitGame::GameObjects
 		virtual ~GameObject() = 0;
 	private:
 		bool canUpdate = false;
+
+		GameObjectType type{};
 
 		string name{};
 		vec3 pos{};

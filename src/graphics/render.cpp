@@ -32,6 +32,7 @@ using KalaWindow::Graphics::OpenGL::Shader_OpenGL;
 using KalaWindow::Graphics::OpenGL::ShaderStage;
 using KalaWindow::Graphics::OpenGL::ShaderType;
 
+using CircuitGame::GameObjects::GameObjectType;
 using CircuitGame::GameObjects::Cube;
 using CircuitGame::Graphics::Texture;
 using CircuitGame::Graphics::Render;
@@ -43,14 +44,33 @@ using std::string;
 using std::vector;
 using std::filesystem::path;
 using std::filesystem::current_path;
-using std::pair;
 
 static vec2 lastSize{};
 
 static Window* mainWindow{};
 
-static bool InitializeTextures(vector<pair<string, string>> textures);
-static bool InitializeShaders(vector<pair<string, pair<string, string>>> shaders);
+struct TextureData
+{
+	string textureName;
+	string texturePath;
+};
+struct ShaderData
+{
+	string shaderName;
+	string vertPath;
+	string fragPath;
+};
+struct GameObjectData
+{
+	string name;
+	GameObjectType type;
+	string textureName;
+	string shaderName;
+};
+
+static bool InitializeTextures(const vector<TextureData>& textures);
+static bool InitializeShaders(const vector<ShaderData>& shaders);
+static bool CreateGameObjects(const vector<GameObjectData>& gameObjects);
 
 static void ResizeProjectionMatrix();
 
@@ -70,19 +90,16 @@ namespace CircuitGame::Graphics
 		//if (!InitializeTextures()) return false;
 		//if (!InitializeShaders()) return false;
 
-		Cube* cube = new Cube();
-		if (cube->Initialize(
-			"cube01",
-			Shader_OpenGL::createdShaders["cubeShader"].get()) == nullptr)
+		vector<GameObjectData> gameObjects{};
+		GameObjectData cubeData =
 		{
-			return false;
-		}
-		Texture* tex = createdTextures["cubeTexture"].get();
-		if (tex == nullptr)
-		{
-			return false;
-		}
-		cube->SetTexture(tex);
+			.name = "cube_1",
+			.type = GameObjectType::cube,
+			.textureName = "texture_cube",
+			.shaderName = "shader_cube"
+		};
+		gameObjects.push_back(cubeData);
+		CreateGameObjects(gameObjects);
 
 		return true;
 	}
@@ -97,7 +114,10 @@ namespace CircuitGame::Graphics
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f); //dark gray
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		//TODO: FIX THIS -> Cube::Render();
+		for (const auto& object : runtimeGameObjects)
+		{
+			object->Render();
+		}
 
 		Renderer_OpenGL::SwapOpenGLBuffers(mainWindow);
 	}
@@ -114,12 +134,12 @@ namespace CircuitGame::Graphics
 	}
 }
 
-bool InitializeTextures(vector<pair<string, string>> textures)
+bool InitializeTextures(const vector<TextureData>& textures)
 {
-	auto CreateTexture = [](pair<string, string> textureValues) -> bool
+	auto CreateTexture = [](const TextureData& data) -> bool
 		{
-			string textureName = textureValues.first;
-			string texturePath = textureValues.second;
+			string textureName = data.textureName;
+			string texturePath = data.texturePath;
 
 			Texture* tex = Texture::CreateTexture(
 				textureName,
@@ -141,14 +161,14 @@ bool InitializeTextures(vector<pair<string, string>> textures)
 	return true;
 }
 
-bool InitializeShaders(vector<pair<string, pair<string, string>>> shaders)
+bool InitializeShaders(const vector<ShaderData>& shaders)
 {
-	auto CreateShader = [](pair<string, pair<string, string>> shaderValues) -> bool
+	auto CreateShader = [](const ShaderData& data) -> bool
 		{
-			string shaderName = shaderValues.first;
+			string shaderName = data.shaderName;
 
-			string vertPath = shaderValues.second.first;
-			string fragPath = shaderValues.second.second;
+			string vertPath = data.vertPath;
+			string fragPath = data.fragPath;
 			struct ShaderStage vertStage
 			{
 				.shaderType = ShaderType::Shader_Vertex,
@@ -177,6 +197,92 @@ bool InitializeShaders(vector<pair<string, pair<string, string>>> shaders)
 	for (const auto& shader : shaders)
 	{
 		if (!CreateShader(shader)) return false;
+	}
+
+	return true;
+}
+
+bool CreateGameObjects(const vector<GameObjectData>& gameObjects)
+{
+	auto CreateGameObject = [](
+		const string& name,
+		GameObjectType type,
+		const string& textureName,
+		const string& shaderName)
+		{
+			bool foundTexture = false;
+			for (const auto& [key, value] : Render::createdTextures)
+			{
+				if (key == textureName)
+				{
+					foundTexture = true;
+					break;
+				}
+			}
+			if (!foundTexture)
+			{
+				Logger::Print(
+					"Cannot create gameobject '" + name + "' because its texture '" + textureName + "' is missing!",
+					"RENDER",
+					LogType::LOG_ERROR,
+					2);
+
+				return false;
+			}
+
+			bool foundShader = false;
+			for (const auto& [key, value] : Shader_OpenGL::createdShaders)
+			{
+				if (key == shaderName)
+				{
+					foundShader = true;
+					break;
+				}
+			}
+			if (!foundShader)
+			{
+				Logger::Print(
+					"Cannot create gameobject '" + name + "' because its shader '" + shaderName + "' is missing!",
+					"RENDER",
+					LogType::LOG_ERROR,
+					2);
+
+				return false;
+			}
+
+			Cube* cube = new Cube();
+			if (cube->Initialize(
+				name,
+				Shader_OpenGL::createdShaders[shaderName].get()) == nullptr)
+			{
+				return false;
+			}
+			Texture* tex = Render::createdTextures[textureName].get();
+			if (tex == nullptr)
+			{
+				Logger::Print(
+					"Failed to attach texture '" + textureName + "' to gameobject '" + name + + "' because the texture is invalid!",
+					"RENDER",
+					LogType::LOG_ERROR,
+					2);
+
+				return false;
+			}
+			cube->SetTexture(tex);
+
+			return true;
+		};
+
+	for (const auto& obj : gameObjects)
+	{
+		if (!CreateGameObject(
+			obj.name,
+			obj.type,
+			obj.textureName,
+			obj.shaderName))
+		{
+			return false;
+		}
 	}
 
 	return true;

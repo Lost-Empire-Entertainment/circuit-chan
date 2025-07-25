@@ -48,8 +48,6 @@ static unsigned int VBO{};
 static unsigned int EBO{};
 static Window* mainWindow{};
 
-static Shader_OpenGL* thisCubeShader{};
-
 static void CreateCube();
 
 namespace CircuitGame::GameObjects
@@ -61,7 +59,21 @@ namespace CircuitGame::GameObjects
 		const vec3& rot,
 		const vec3& scale)
 	{
-		if (shader == nullptr) return nullptr;
+		if (shader == nullptr)
+		{
+			Logger::Print(
+				"Failed to create gameobject '" + name + "' because it had an invalid shader!",
+				"GAMEOBJECT",
+				LogType::LOG_ERROR,
+				2);
+
+			return nullptr;
+		}
+
+		Logger::Print(
+			"Creating cube '" + name + "'.",
+			"GAMEOBJECT",
+			LogType::LOG_INFO);
 
 		CreateCube();
 
@@ -70,7 +82,7 @@ namespace CircuitGame::GameObjects
 		newCube->SetPos(pos);
 		newCube->SetRot(rot);
 		newCube->SetScale(scale);
-		newCube->SetShader(thisCubeShader);
+		newCube->SetShader(shader);
 
 		Render::createdGameObjects[name] = move(newCube);
 
@@ -86,18 +98,19 @@ namespace CircuitGame::GameObjects
 	{
 		if (!CanUpdate()) return false;
 
-		if (thisCubeShader == nullptr)
+		if (GetShader() == nullptr)
 		{
 			Logger::Print(
 				"Cannot render gameobject '" + GetName() + "' because its shader is nullptr!",
 				"GAMEOBJECT",
 				LogType::LOG_ERROR,
 				2);
+
 			return false;
 		}
 
 		unsigned int thisID = GetTexture()->GetTextureID();
-		if (!thisCubeShader->Bind()) return false;
+		if (!GetShader()->Bind()) return false;
 		
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, thisID);
@@ -105,7 +118,7 @@ namespace CircuitGame::GameObjects
 		mat4 model = mat4(1.0f);
 		model = translate(model, vec3(0.0f, 1.0f, 0.0f));
 
-		thisCubeShader->SetMat4(thisID, "model", model);
+		GetShader()->SetMat4(thisID, "model", model);
 
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
