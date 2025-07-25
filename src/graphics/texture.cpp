@@ -7,6 +7,7 @@
 #include <string>
 #include <unordered_map>
 #include <memory>
+#include <vector>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../stb_image/stb_image.h"
@@ -14,6 +15,7 @@
 //kalawindow
 #include "core/log.hpp"
 #include "graphics/opengl/opengl_core.hpp"
+#include "graphics/window.hpp"
 
 #include "graphics/texture.hpp"
 #include "graphics/render.hpp"
@@ -21,6 +23,13 @@
 //kalawindow
 using KalaWindow::Core::Logger;
 using KalaWindow::Core::LogType;
+using KalaWindow::Core::TimeFormat;
+using KalaWindow::Core::DateFormat;
+using KalaWindow::Graphics::Window;
+using KalaWindow::Graphics::PopupAction;
+using KalaWindow::Graphics::PopupResult;
+using KalaWindow::Graphics::PopupType;
+using KalaWindow::Graphics::ShutdownState;
 
 using CircuitGame::Graphics::Texture;
 using CircuitGame::Graphics::Render;
@@ -34,8 +43,20 @@ using std::filesystem::current_path;
 using std::string;
 using std::unordered_map;
 using std::unique_ptr;
+using std::vector;
 
-static bool IsValidTexture(
+enum class TextureCheckResult
+{
+	RESULT_OK,
+	RESULT_INVALID,
+	RESULT_ALREADY_EXISTS
+};
+
+static void ForceClose(
+	const string& title,
+	const string& reason);
+
+static TextureCheckResult IsValidTexture(
 	const string& textureName,
 	const string& texturePath,
 	const unordered_map<string, unique_ptr<Texture>>& textures);
@@ -46,12 +67,15 @@ namespace CircuitGame::Graphics
 		const string& textureName,
 		const string& texturePath)
 	{
-		if (!IsValidTexture(
+		TextureCheckResult result = (IsValidTexture(
 			textureName,
 			texturePath,
-			Render::createdTextures))
+			Render::createdTextures));
+
+		if (result == TextureCheckResult::RESULT_INVALID) return nullptr;
+		else if (result == TextureCheckResult::RESULT_ALREADY_EXISTS)
 		{
-			return nullptr;
+			return Render::createdTextures[textureName].get();
 		}
 
 		Logger::Print(
@@ -134,20 +158,95 @@ namespace CircuitGame::Graphics
 	}
 }
 
-bool IsValidTexture(
+void ForceClose(
+	const string& title,
+	const string& reason)
+{
+	Logger::Print(
+		reason,
+		"TEXTURE",
+		LogType::LOG_ERROR,
+		2,
+		TimeFormat::TIME_NONE,
+		DateFormat::DATE_NONE);
+
+	Window* mainWindow = Window::windows.front();
+	if (mainWindow->CreatePopup(
+		title,
+		reason,
+		PopupAction::POPUP_ACTION_OK,
+		PopupType::POPUP_TYPE_ERROR)
+		== PopupResult::POPUP_RESULT_OK)
+	{
+		Window::Shutdown(ShutdownState::SHUTDOWN_FAILURE);
+	}
+}
+
+TextureCheckResult IsValidTexture(
 	const string& textureName,
 	const string& texturePath,
 	const unordered_map<string, unique_ptr<Texture>>& createdTextures)
 {
-	if (!exists(texturePath))
+	if (textureName.empty())
 	{
-		Logger::Print(
-			"Texture path '" + texturePath + "' is invalid!",
-			"TEXTURE",
-			LogType::LOG_ERROR,
-			2);
+		string title = "Texture error [texture]";
+		string reason = "Cannot create a texture with no name!";
 
-		return false;
+		ForceClose(title, reason);
+	}
+	if (texturePath.empty())
+	{
+		string title = "Texture error [texture]";
+		string reason = "Cannot create a texture with no path!";
+
+		ForceClose(title, reason);
+	}
+
+	string texturePathName = path(texturePath).filename().string();
+
+	if (!exists(texturePath)
+		|| texturePath.empty())
+	{
+		string title = "Texture error [texture]";
+		string reason = "Texture '" + textureName + "' path '" + texturePathName + "' does not exist!";
+
+		ForceClose(title, reason);
+
+		return TextureCheckResult::RESULT_INVALID;
+	}
+
+	vector<string> validExtensions =
+	{
+		".png",
+		".jpg",
+		".jpeg"
+	};
+
+	if (!path(texturePath).has_extension())
+	{
+		string title = "Texture error [texture]";
+		string reason = "Texture '" + textureName + "' does not have an extension. You must use png, jpg or jpeg!";
+
+		ForceClose(title, reason);
+
+		return TextureCheckResult::RESULT_INVALID;
+	}
+
+	string thisExtension = path(texturePath).extension().string();
+	bool isExtensionValid = 
+		find(validExtensions.begin(),
+			validExtensions.end(),
+			thisExtension)
+		!= validExtensions.end();
+
+	if (!isExtensionValid)
+	{
+		string title = "Texture error [texture]";
+		string reason = "Texture '" + textureName + "' has an invalid extension '" + thisExtension + "'. Only png, jpg and jpeg are allowed!";
+
+		ForceClose(title, reason);
+
+		return TextureCheckResult::RESULT_INVALID;
 	}
 
 	for (const auto& [key, value] : createdTextures)
@@ -155,25 +254,25 @@ bool IsValidTexture(
 		if (key == textureName)
 		{
 			Logger::Print(
-				"Texture with name '" + textureName + "' already exists!",
+				"Texture '" + textureName + "' already exists!",
 				"TEXTURE",
 				LogType::LOG_ERROR,
 				2);
 
-			return false;
+			return TextureCheckResult::RESULT_ALREADY_EXISTS;
 		}
 
 		if (value->GetTexturePath() == texturePath)
 		{
 			Logger::Print(
-				"Texture with path '" + texturePath + "' has already been loaded!",
+				"Texture '" + textureName + "' with path '" + texturePathName + "' has already been loaded!",
 				"TEXTURE",
 				LogType::LOG_ERROR,
 				2);
 
-			return false;
+			return TextureCheckResult::RESULT_ALREADY_EXISTS;
 		}
 	}
 
-	return true;
+	return TextureCheckResult::RESULT_OK;
 }

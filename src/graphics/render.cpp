@@ -87,8 +87,24 @@ namespace CircuitGame::Graphics
 		mainWindow->SetResizeCallback(ResizeProjectionMatrix);
 		ResizeProjectionMatrix();
 
-		//if (!InitializeTextures()) return false;
-		//if (!InitializeShaders()) return false;
+		vector<TextureData> textures{};
+		TextureData textureData =
+		{
+			.textureName = "texture_cube",
+			.texturePath = path(current_path() / "files" / "textures" / "cube.png").string()
+		};
+		textures.push_back(textureData);
+		if (!InitializeTextures(textures)) return false;
+
+		vector<ShaderData> shaders{};
+		ShaderData shaderData =
+		{
+			.shaderName = "shader_cube",
+			.vertPath = path(current_path() / "files" / "shaders" / "cube.vert").string(),
+			.fragPath = path(current_path() / "files" / "shaders" / "cube.frag").string()
+		};
+		shaders.push_back(shaderData);
+		if (!InitializeShaders(shaders)) return false;
 
 		vector<GameObjectData> gameObjects{};
 		GameObjectData cubeData =
@@ -136,7 +152,7 @@ namespace CircuitGame::Graphics
 
 bool InitializeTextures(const vector<TextureData>& textures)
 {
-	auto CreateTexture = [](const TextureData& data) -> bool
+	auto CreateTexture = [](const TextureData& data)
 		{
 			string textureName = data.textureName;
 			string texturePath = data.texturePath;
@@ -163,7 +179,7 @@ bool InitializeTextures(const vector<TextureData>& textures)
 
 bool InitializeShaders(const vector<ShaderData>& shaders)
 {
-	auto CreateShader = [](const ShaderData& data) -> bool
+	auto CreateShader = [](const ShaderData& data)
 		{
 			string shaderName = data.shaderName;
 
