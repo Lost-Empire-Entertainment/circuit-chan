@@ -28,6 +28,8 @@ using KalaWindow::Graphics::PopupResult;
 using KalaWindow::Graphics::PopupType;
 using KalaWindow::Core::Logger;
 using KalaWindow::Core::LogType;
+using KalaWindow::Core::TimeFormat;
+using KalaWindow::Core::DateFormat;
 using KalaWindow::Graphics::OpenGL::Shader_OpenGL;
 
 using CircuitGame::Graphics::Texture;
@@ -37,6 +39,7 @@ using std::filesystem::path;
 using std::filesystem::current_path;
 using std::filesystem::exists;
 using std::string;
+using std::to_string;
 using std::ofstream;
 using std::unique_ptr;
 using std::make_unique;
@@ -59,17 +62,6 @@ namespace CircuitGame::GameObjects
 		const vec3& rot,
 		const vec3& scale)
 	{
-		if (shader == nullptr)
-		{
-			Logger::Print(
-				"Failed to create gameobject '" + name + "' because it had an invalid shader!",
-				"GAMEOBJECT",
-				LogType::LOG_ERROR,
-				2);
-
-			return nullptr;
-		}
-
 		Logger::Print(
 			"Creating cube '" + name + "'.",
 			"GAMEOBJECT",
@@ -83,21 +75,32 @@ namespace CircuitGame::GameObjects
 		newCube->SetRot(rot);
 		newCube->SetScale(scale);
 		newCube->SetShader(shader);
+		newCube->SetUpdate(true);
 
-		Render::createdGameObjects[name] = move(newCube);
+		Render::createdCubes[name] = move(newCube);
+		Render::runtimeCubes.push_back(Render::createdCubes[name].get());
 
 		Logger::Print(
 			"Initialized gameobject '" + name + "'!",
 			"GAMEOBJECT",
 			LogType::LOG_SUCCESS);
-		
-		return Render::createdGameObjects[name].get();
+		return Render::createdCubes[name].get();
 	}
 
 	bool Cube::Render()
 	{
 		if (!CanUpdate()) return false;
 
+		if (GetTexture() == nullptr)
+		{
+			Logger::Print(
+				"Cannot render gameobject '" + GetName() + "' because its texture is nullptr!",
+				"GAMEOBJECT",
+				LogType::LOG_ERROR,
+				2);
+
+			return false;
+		}
 		if (GetShader() == nullptr)
 		{
 			Logger::Print(
@@ -108,6 +111,18 @@ namespace CircuitGame::GameObjects
 
 			return false;
 		}
+
+		string pos = 
+			to_string(GetPos().x) + ", " +
+			to_string(GetPos().y) + ", " + 
+			to_string(GetPos().z);
+		Logger::Print(
+			"Position: " + pos,
+			"GAMEOBJECT",
+			LogType::LOG_INFO,
+			0,
+			TimeFormat::TIME_NONE,
+			DateFormat::DATE_NONE);
 
 		unsigned int thisID = GetTexture()->GetTextureID();
 		if (!GetShader()->Bind()) return false;

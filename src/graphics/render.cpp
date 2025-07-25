@@ -24,9 +24,15 @@
 
 //kalawindow
 using KalaWindow::Graphics::Window;
+using KalaWindow::Graphics::PopupAction;
+using KalaWindow::Graphics::PopupResult;
+using KalaWindow::Graphics::PopupType;
+using KalaWindow::Graphics::ShutdownState;
 using KalaWindow::Graphics::OpenGL::Renderer_OpenGL;
 using KalaWindow::Core::Logger;
 using KalaWindow::Core::LogType;
+using KalaWindow::Core::TimeFormat;
+using KalaWindow::Core::DateFormat;
 using KalaWindow::Graphics::OpenGL::OpenGLCore;
 using KalaWindow::Graphics::OpenGL::Shader_OpenGL;
 using KalaWindow::Graphics::OpenGL::ShaderStage;
@@ -64,9 +70,13 @@ struct GameObjectData
 {
 	string name;
 	GameObjectType type;
-	string textureName;
-	string shaderName;
+	Texture* tex;
+	Shader_OpenGL* shader;
 };
+
+static void ForceClose(
+	const string& title,
+	const string& reason);
 
 static bool InitializeTextures(const vector<TextureData>& textures);
 static bool InitializeShaders(const vector<ShaderData>& shaders);
@@ -111,8 +121,8 @@ namespace CircuitGame::Graphics
 		{
 			.name = "cube_1",
 			.type = GameObjectType::cube,
-			.textureName = "texture_cube",
-			.shaderName = "shader_cube"
+			.tex = createdTextures["texture_cube"].get(),
+			.shader = Shader_OpenGL::createdShaders["shader_cube"].get()
 		};
 		gameObjects.push_back(cubeData);
 		CreateGameObjects(gameObjects);
@@ -130,7 +140,7 @@ namespace CircuitGame::Graphics
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f); //dark gray
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		for (const auto& object : runtimeGameObjects)
+		for (const auto& object : runtimeCubes)
 		{
 			object->Render();
 		}
@@ -140,13 +150,37 @@ namespace CircuitGame::Graphics
 
 	void Render::Shutdown()
 	{
-		for (const auto& obj : runtimeGameObjects)
+		for (const auto& obj : runtimeCubes)
 		{
 			obj->SetUpdate(false);
 		}
 
 		createdTextures.clear();
-		createdGameObjects.clear();
+		createdCubes.clear();
+	}
+}
+
+void ForceClose(
+	const string& title,
+	const string& reason)
+{
+	Logger::Print(
+		reason,
+		"TEXTURE",
+		LogType::LOG_ERROR,
+		2,
+		TimeFormat::TIME_NONE,
+		DateFormat::DATE_NONE);
+
+	Window* mainWindow = Window::windows.front();
+	if (mainWindow->CreatePopup(
+		title,
+		reason,
+		PopupAction::POPUP_ACTION_OK,
+		PopupType::POPUP_TYPE_ERROR)
+		== PopupResult::POPUP_RESULT_OK)
+	{
+		Window::Shutdown(ShutdownState::SHUTDOWN_FAILURE);
 	}
 }
 
@@ -223,45 +257,25 @@ bool CreateGameObjects(const vector<GameObjectData>& gameObjects)
 	auto CreateGameObject = [](
 		const string& name,
 		GameObjectType type,
-		const string& textureName,
-		const string& shaderName)
+		Texture* tex,
+		Shader_OpenGL* shader)
 		{
-			bool foundTexture = false;
-			for (const auto& [key, value] : Render::createdTextures)
+			if (tex)
 			{
-				if (key == textureName)
-				{
-					foundTexture = true;
-					break;
-				}
-			}
-			if (!foundTexture)
-			{
-				Logger::Print(
-					"Cannot create gameobject '" + name + "' because its texture '" + textureName + "' is missing!",
-					"RENDER",
-					LogType::LOG_ERROR,
-					2);
+				string title = "Render error";
+				string reason = "Cannot create gameobject '" + name + "' because its texture is nullptr!";
+
+				ForceClose(title, reason);
 
 				return false;
 			}
 
-			bool foundShader = false;
-			for (const auto& [key, value] : Shader_OpenGL::createdShaders)
+			if (shader == nullptr)
 			{
-				if (key == shaderName)
-				{
-					foundShader = true;
-					break;
-				}
-			}
-			if (!foundShader)
-			{
-				Logger::Print(
-					"Cannot create gameobject '" + name + "' because its shader '" + shaderName + "' is missing!",
-					"RENDER",
-					LogType::LOG_ERROR,
-					2);
+				string title = "Render error";
+				string reason = "Cannot create gameobject '" + name + "' because its shader is nullptr!";
+
+				ForceClose(title, reason);
 
 				return false;
 			}
@@ -269,19 +283,8 @@ bool CreateGameObjects(const vector<GameObjectData>& gameObjects)
 			Cube* cube = new Cube();
 			if (cube->Initialize(
 				name,
-				Shader_OpenGL::createdShaders[shaderName].get()) == nullptr)
+				shader) == nullptr)
 			{
-				return false;
-			}
-			Texture* tex = Render::createdTextures[textureName].get();
-			if (tex == nullptr)
-			{
-				Logger::Print(
-					"Failed to attach texture '" + textureName + "' to gameobject '" + name + + "' because the texture is invalid!",
-					"RENDER",
-					LogType::LOG_ERROR,
-					2);
-
 				return false;
 			}
 			cube->SetTexture(tex);
@@ -294,8 +297,8 @@ bool CreateGameObjects(const vector<GameObjectData>& gameObjects)
 		if (!CreateGameObject(
 			obj.name,
 			obj.type,
-			obj.textureName,
-			obj.shaderName))
+			obj.tex,
+			obj.shader))
 		{
 			return false;
 		}
