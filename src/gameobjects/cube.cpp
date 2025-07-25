@@ -17,8 +17,9 @@
 #include "graphics/opengl/shader_opengl.hpp"
 #include "graphics/opengl/opengl_core.hpp"
 
-#include "graphics/cube.hpp"
+#include "gameobjects/cube.hpp"
 #include "graphics/texture.hpp"
+#include "graphics/render.hpp"
 
 using KalaWindow::Graphics::Window;
 using KalaWindow::Graphics::ShutdownState;
@@ -28,10 +29,9 @@ using KalaWindow::Graphics::PopupType;
 using KalaWindow::Core::Logger;
 using KalaWindow::Core::LogType;
 using KalaWindow::Graphics::OpenGL::Shader_OpenGL;
-using KalaWindow::Graphics::OpenGL::ShaderStage;
-using KalaWindow::Graphics::OpenGL::ShaderType;
 
-using KalaTestProject::Graphics::Texture;
+using CircuitGame::Graphics::Texture;
+using CircuitGame::Graphics::Render;
 
 using std::filesystem::path;
 using std::filesystem::current_path;
@@ -52,76 +52,52 @@ static Shader_OpenGL* thisCubeShader{};
 
 static void CreateCube();
 
-namespace KalaTestProject::Graphics
+namespace CircuitGame::GameObjects
 {
-	bool Cube::Initialize()
+	GameObject* Cube::Initialize(
+		const string& name,
+		Shader_OpenGL* shader,
+		const vec3& pos,
+		const vec3& rot,
+		const vec3& scale)
 	{
-		string vertPath = path(current_path() / "files" / "shaders" / "cube.vert").string();
-		string fragPath = path(current_path() / "files" / "shaders" / "cube.frag").string();
-
-		mainWindow = Window::windows.front();
-
-		string shaderName = "shader_cube";
-
-		struct ShaderStage vertStage
-		{
-			.shaderType = ShaderType::Shader_Vertex,
-			.shaderPath = vertPath
-		};
-		struct ShaderStage fragStage
-		{
-			.shaderType = ShaderType::Shader_Fragment,
-			.shaderPath = fragPath
-		};
-
-		vector<ShaderStage> stages
-		{
-			vertStage,
-			fragStage
-		};
-		thisCubeShader = Shader_OpenGL::CreateShader(
-			shaderName,
-			stages,
-			mainWindow);
-
-		if (thisCubeShader == nullptr) return false;
+		if (shader == nullptr) return nullptr;
 
 		CreateCube();
 
-		string textureName = "cubeTexture";
-		string texturePath = path(current_path() / "files" / "textures" / "cube.png").string();
-		Texture* tex = Texture::CreateTexture(
-			textureName,
-			texturePath);
+		unique_ptr<Cube> newCube = make_unique<Cube>();
+		newCube->SetName(name);
+		newCube->SetPos(pos);
+		newCube->SetRot(rot);
+		newCube->SetScale(scale);
+		newCube->SetShader(thisCubeShader);
+
+		Render::createdGameObjects[name] = move(newCube);
 
 		Logger::Print(
-			"Initialized cube!",
-			"TRIANGLE_OPENGL",
+			"Initialized gameobject '" + name + "'!",
+			"GAMEOBJECT",
 			LogType::LOG_SUCCESS);
-
-		SetCubeShader(thisCubeShader);
 		
-		return true;
+		return Render::createdGameObjects[name].get();
 	}
 
-	void Cube::Render()
+	bool Cube::Render()
 	{
-		if (thisCubeShader == nullptr)
-		{
-			thisCubeShader = GetCubeShader();
-		}
+		if (!CanUpdate()) return false;
+
 		if (thisCubeShader == nullptr)
 		{
 			Logger::Print(
-				"Cube shader is nullptr!",
-				"CUBE",
+				"Cannot render gameobject '" + GetName() + "' because its shader is nullptr!",
+				"GAMEOBJECT",
 				LogType::LOG_ERROR,
 				2);
-			return;
+			return false;
 		}
 
-		unsigned int thisID = Texture::createdTextures["shader_cube"]->GetTextureID();
-		thisCubeShader->Bind();
+		unsigned int thisID = GetTexture()->GetTextureID();
+		if (!thisCubeShader->Bind()) return false;
 		
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, thisID);
@@ -133,22 +109,31 @@ namespace KalaTestProject::Graphics
 
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		return true;
 	}
 
-	void Cube::Destroy()
+	Cube::~Cube()
 	{
-		if (GetCubeShader() == nullptr) return;
-		if (thisCubeShader == nullptr)
+		if (VAO)
 		{
-			thisCubeShader = GetCubeShader();
+			glDeleteVertexArrays(1, &VAO);
+			VAO = 0;
+		}
+		if (VBO)
+		{
+			glDeleteBuffers(1, &VBO);
+			VBO = 0;
+		}
+		if (EBO)
+		{
+			glDeleteBuffers(1, &EBO);
+			EBO = 0;
 		}
 
-		glDeleteVertexArrays(1, &VAO);
-		glDeleteBuffers(1, &VBO);
-
 		Logger::Print(
-			"Destroyed cube!",
-			"CUBE",
+			"Destroyed gameobject '" + GetName() + "'!",
+			"GAMEOBJECT",
 			LogType::LOG_SUCCESS);
 	}
 }
@@ -241,8 +226,6 @@ void CreateCube()
 		GL_FALSE,
 		8 * sizeof(float),
 		(void*)(6 * sizeof(float)));
-
-
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);

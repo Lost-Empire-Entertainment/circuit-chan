@@ -3,13 +3,7 @@
 //This is free software, and you are welcome to redistribute it under certain conditions.
 //Read LICENSE.md for more information.
 
-#include "core/core.hpp"
-
-using CircuitGame::Core::Game;
-
-int main()
+namespace CircuitGame::GameObjects
 {
-	Game::Initialize();
 
-	return 0;
 }

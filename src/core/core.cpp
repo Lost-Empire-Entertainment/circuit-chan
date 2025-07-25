@@ -18,9 +18,10 @@
 #include "core/input.hpp"
 #include "core/log.hpp"
 #include "core/core.hpp"
+
 #include "graphics/render.hpp"
-#include "graphics/cube.hpp"
 #include "graphics/texture.hpp"
+#include "gameobjects/gameobject.hpp"
 
 //kalacrashhandler
 using KalaKit::KalaCrashHandler;
@@ -36,10 +37,10 @@ using KalaWindow::Core::LogType;
 using GLVState = KalaWindow::Graphics::OpenGL::VSyncState;
 using KalaWindow::Graphics::OpenGL::Renderer_OpenGL;
 
-using KalaTestProject::Core::TestProject;
-using KalaTestProject::Graphics::Render;
-using KalaTestProject::Graphics::Cube;
-using KalaTestProject::Graphics::Texture;
+using CircuitGame::Core::Game;
+using CircuitGame::Graphics::Render;
+using CircuitGame::Graphics::Texture;
+using CircuitGame::Graphics::GameObject;
 
 using std::thread;
 using std::chrono::milliseconds;
@@ -71,16 +72,16 @@ static Window* mainWindow{};
 
 static vec2 lastSize{};
 
-namespace KalaTestProject::Core
+namespace CircuitGame::Core
 {
-	void TestProject::Initialize()
+	void Game::Initialize()
 	{
 		KalaCrashHandler::SetShutdownCallback(Shutdown_Crash);
 		KalaCrashHandler::SetProgramName("CircuitGame");
 
 		KalaCrashHandler::Initialize();
 
-		Window::SetUserShutdownFunction(Shutdown);
+		Window::SetUserShutdownFunction(Render::Shutdown);
 
 		string title = "CircuitGame";
 		float width = 800;
@@ -125,10 +126,10 @@ namespace KalaTestProject::Core
 
 		mainWindow->SetWindowState(WindowState::WINDOW_MAXIMIZE);
 
-		TestProject::Update();
+		Game::Update();
 	}
 
-	void TestProject::Update()
+	void Game::Update()
 	{
 		while (isRunning)
 		{
@@ -208,14 +209,10 @@ namespace KalaTestProject::Core
 		}
 	}
 
-	void TestProject::Shutdown()
+	void Game::Shutdown_Crash()
 	{
-		Cube::Destroy();
-		Texture::createdTextures.clear();
-	}
+		Render::Shutdown();
 
-	void TestProject::Shutdown_Crash()
-	{
 		Window::Shutdown(
 			ShutdownState::SHUTDOWN_CRITICAL,
 			false);
@@ -229,10 +226,10 @@ void SleepFor(unsigned int ms)
 	milliseconds convertedMS = milliseconds(ms);
 
 	time_point<steady_clock> now = steady_clock::now();
-	dur frameDuration = now - TestProject::lastFrameTime;
+	dur frameDuration = now - Game::lastFrameTime;
 
 	if (frameDuration < convertedMS) sleep_for(convertedMS - frameDuration);
-	TestProject::lastFrameTime = steady_clock::now();
+	Game::lastFrameTime = steady_clock::now();
 }
 
 void DisplayTitleData()

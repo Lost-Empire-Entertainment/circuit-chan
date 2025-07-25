@@ -5,21 +5,15 @@
 
 #pragma once
 
-#include <unordered_map>
-#include <memory>
 #include <string>
 
-namespace KalaTestProject::Graphics
+namespace CircuitGame::Graphics
 {
-	using std::unordered_map;
-	using std::unique_ptr;
 	using std::string;
 
 	class Texture
 	{
 	public:
-		static inline unordered_map<string, unique_ptr<Texture>> createdTextures{};
-
 		static Texture* CreateTexture(
 			const string& textureName,
 			const string& texturePath);

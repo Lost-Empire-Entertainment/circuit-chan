@@ -16,12 +16,14 @@
 #include "graphics/opengl/opengl_core.hpp"
 
 #include "graphics/texture.hpp"
+#include "graphics/render.hpp"
 
 //kalawindow
 using KalaWindow::Core::Logger;
 using KalaWindow::Core::LogType;
 
-using KalaTestProject::Graphics::Texture;
+using CircuitGame::Graphics::Texture;
+using CircuitGame::Graphics::Render;
 
 using std::make_unique;
 using std::move;
@@ -38,7 +40,7 @@ static bool IsValidTexture(
 	const string& texturePath,
 	const unordered_map<string, unique_ptr<Texture>>& textures);
 
-namespace KalaTestProject::Graphics
+namespace CircuitGame::Graphics
 {
 	Texture* Texture::CreateTexture(
 		const string& textureName,
@@ -47,7 +49,7 @@ namespace KalaTestProject::Graphics
 		if (!IsValidTexture(
 			textureName,
 			texturePath,
-			createdTextures))
+			Render::createdTextures))
 		{
 			return nullptr;
 		}
@@ -111,14 +113,14 @@ namespace KalaTestProject::Graphics
 		unique_ptr<Texture> tex = make_unique<Texture>();
 		tex->textureID = newTextureID;
 		tex->texturePath = texturePath;
-		createdTextures[textureName] = move(tex);
+		Render::createdTextures[textureName] = move(tex);
 
 		Logger::Print(
 			"Loaded texture '" + texturePath + "'!",
 			"TEXTURE",
 			LogType::LOG_SUCCESS);
 
-		return createdTextures[textureName].get();
+		return Render::createdTextures[textureName].get();
 	}
 
 	Texture::~Texture()

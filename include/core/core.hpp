@@ -7,12 +7,12 @@
 
 #include <chrono>
 
-namespace KalaTestProject::Core
+namespace CircuitGame::Core
 {
 	using std::chrono::time_point;
 	using std::chrono::steady_clock;
 
-	class TestProject
+	class Game
 	{
 	public:
 		static inline time_point<steady_clock> lastFrameTime{};
@@ -22,9 +22,6 @@ namespace KalaTestProject::Core
 
 		//The core program uodate loop
 		static void Update();
-
-		//Standard shutdown conditions, called when user wants to shut down program regularly
-		static void Shutdown();
 
 		//Fully shuts down this program, used when a crash condition is detected
 		static void Shutdown_Crash();
