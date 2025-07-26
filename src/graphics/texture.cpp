@@ -111,11 +111,9 @@ namespace CircuitGame::Graphics
 
 		if (!data)
 		{
-			Logger::Print(
-				"Failed to load texture '" + texturePath + "'!",
-				"TEXTURE",
-				LogType::LOG_ERROR,
-				2);
+			KalaWindowCore::ForceClose(
+				"Texture error",
+				"Failed to load texture '" + texturePath + "'!");
 
 			return nullptr;
 		}
@@ -134,12 +132,14 @@ namespace CircuitGame::Graphics
 		unique_ptr<Texture> tex = make_unique<Texture>();
 		tex->textureID = newTextureID;
 		tex->texturePath = texturePath;
-		Render::createdTextures[textureName] = move(tex);
 
 		Logger::Print(
 			"Loaded texture '" + texturePath + "'!",
 			"TEXTURE",
 			LogType::LOG_SUCCESS);
+
+		Render::createdTextures[textureName] = move(tex);
+		Render::runtimeTextures.push_back(Render::createdTextures[textureName].get());
 
 		return Render::createdTextures[textureName].get();
 	}

@@ -11,8 +11,9 @@
 #include "graphics/window.hpp"
 #include "graphics/opengl/opengl.hpp"
 #include "graphics/opengl/opengl_core.hpp"
-#include "core/log.hpp"
 #include "graphics/opengl/shader_opengl.hpp"
+#include "core/log.hpp"
+#include "core/core.hpp"
 
 //glm
 #include "glm/gtc/matrix_transform.hpp"
@@ -25,12 +26,13 @@
 //kalawindow
 using KalaWindow::Graphics::Window;
 using KalaWindow::Graphics::OpenGL::Renderer_OpenGL;
-using KalaWindow::Core::Logger;
-using KalaWindow::Core::LogType;
 using KalaWindow::Graphics::OpenGL::OpenGLCore;
 using KalaWindow::Graphics::OpenGL::Shader_OpenGL;
 using KalaWindow::Graphics::OpenGL::ShaderStage;
 using KalaWindow::Graphics::OpenGL::ShaderType;
+using KalaWindow::Core::Logger;
+using KalaWindow::Core::LogType;
+using KalaWindow::Core::KalaWindowCore;
 
 using CircuitGame::GameObjects::GameObjectType;
 using CircuitGame::GameObjects::Cube;
@@ -152,26 +154,14 @@ namespace CircuitGame::Graphics
 
 bool InitializeTextures(const vector<TextureData>& textures)
 {
-	auto CreateTexture = [](const TextureData& data)
-		{
-			string textureName = data.textureName;
-			string texturePath = data.texturePath;
-
-			Texture* tex = Texture::CreateTexture(
-				textureName,
-				texturePath);
-
-			if (!tex) return false;
-			else
-			{
-				Render::runtimeTextures.push_back(tex);
-				return true;
-			}
-		};
-
 	for (const auto& texture : textures)
 	{
-		if (!CreateTexture(texture)) return false;
+		string textureName = texture.textureName;
+		string texturePath = texture.texturePath;
+
+		Texture* tex = Texture::CreateTexture(
+			textureName,
+			texturePath);
 	}
 
 	return true;
@@ -179,40 +169,33 @@ bool InitializeTextures(const vector<TextureData>& textures)
 
 bool InitializeShaders(const vector<ShaderData>& shaders)
 {
-	auto CreateShader = [](const ShaderData& data)
-		{
-			string shaderName = data.shaderName;
-
-			string vertPath = data.vertPath;
-			string fragPath = data.fragPath;
-			struct ShaderStage vertStage
-			{
-				.shaderType = ShaderType::Shader_Vertex,
-				.shaderPath = vertPath
-			};
-			struct ShaderStage fragStage
-			{
-				.shaderType = ShaderType::Shader_Fragment,
-				.shaderPath = fragPath
-			};
-
-			vector<ShaderStage> stages
-			{
-				vertStage,
-				fragStage
-			};
-
-			Shader_OpenGL* shader = Shader_OpenGL::CreateShader(
-				shaderName,
-				stages,
-				mainWindow);
-
-			return shader;
-		};
-
 	for (const auto& shader : shaders)
 	{
-		if (!CreateShader(shader)) return false;
+		string shaderName = shader.shaderName;
+
+		string vertPath = shader.vertPath;
+		string fragPath = shader.fragPath;
+		struct ShaderStage vertStage
+		{
+			.shaderType = ShaderType::Shader_Vertex,
+			.shaderPath = vertPath
+		};
+		struct ShaderStage fragStage
+		{
+			.shaderType = ShaderType::Shader_Fragment,
+			.shaderPath = fragPath
+		};
+
+		vector<ShaderStage> stages
+		{
+			vertStage,
+			fragStage
+		};
+
+		Shader_OpenGL* shader = Shader_OpenGL::CreateShader(
+			shaderName,
+			stages,
+			mainWindow);
 	}
 
 	return true;
