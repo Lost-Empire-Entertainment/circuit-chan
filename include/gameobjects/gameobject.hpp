@@ -39,19 +39,19 @@ namespace CircuitGame::GameObjects
 		GameObjectType GetGameObjectType() const { return type; }
 		void SetGameObjectType(GameObjectType newType) { type = newType; }
 
-		string& GetName() { return name; }
+		const string& GetName() const { return name; }
 		void SetName(const string& newName) { name = newName; }
 
-		vec3& GetPos() { return pos; };
+		const vec3& GetPos() const { return pos; }
 		void SetPos(const vec3& newPos) { pos = newPos; }
 
-		vec3& GetRot() { return rot; };
+		const vec3& GetRot() const { return rot; }
 		void SetRot(const vec3& newRot) { rot = newRot; }
 
-		vec3& GetScale() { return scale; };
+		const vec3& GetScale() const { return scale; };
 		void SetScale(const vec3& newScale) { scale = newScale; }
 
-		Shader_OpenGL* GetShader() { return shader; }
+		const Shader_OpenGL* GetShader() const { return shader; }
 		void SetShader(Shader_OpenGL* newShader) { shader = newShader; }
 
 		virtual bool Render() = 0;

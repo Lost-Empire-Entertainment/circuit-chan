@@ -14,6 +14,7 @@
 
 //kalawindow
 #include "core/log.hpp"
+#include "core/core.hpp"
 #include "graphics/opengl/opengl_core.hpp"
 #include "graphics/window.hpp"
 
@@ -21,15 +22,10 @@
 #include "graphics/render.hpp"
 
 //kalawindow
+using KalaWindow::Core::KalaWindowCore;
 using KalaWindow::Core::Logger;
 using KalaWindow::Core::LogType;
-using KalaWindow::Core::TimeFormat;
-using KalaWindow::Core::DateFormat;
 using KalaWindow::Graphics::Window;
-using KalaWindow::Graphics::PopupAction;
-using KalaWindow::Graphics::PopupResult;
-using KalaWindow::Graphics::PopupType;
-using KalaWindow::Graphics::ShutdownState;
 
 using CircuitGame::Graphics::Texture;
 using CircuitGame::Graphics::Render;
@@ -51,10 +47,6 @@ enum class TextureCheckResult
 	RESULT_INVALID,
 	RESULT_ALREADY_EXISTS
 };
-
-static void ForceClose(
-	const string& title,
-	const string& reason);
 
 static TextureCheckResult IsValidTexture(
 	const string& textureName,
@@ -158,30 +150,6 @@ namespace CircuitGame::Graphics
 	}
 }
 
-void ForceClose(
-	const string& title,
-	const string& reason)
-{
-	Logger::Print(
-		reason,
-		"TEXTURE",
-		LogType::LOG_ERROR,
-		2,
-		TimeFormat::TIME_NONE,
-		DateFormat::DATE_NONE);
-
-	Window* mainWindow = Window::windows.front();
-	if (mainWindow->CreatePopup(
-		title,
-		reason,
-		PopupAction::POPUP_ACTION_OK,
-		PopupType::POPUP_TYPE_ERROR)
-		== PopupResult::POPUP_RESULT_OK)
-	{
-		Window::Shutdown(ShutdownState::SHUTDOWN_FAILURE);
-	}
-}
-
 TextureCheckResult IsValidTexture(
 	const string& textureName,
 	const string& texturePath,
@@ -194,7 +162,7 @@ TextureCheckResult IsValidTexture(
 		string title = "Texture error [texture]";
 		string reason = "Cannot load a texture with no name!";
 
-		ForceClose(title, reason);
+		KalaWindowCore::ForceClose(title, reason);
 	}
 
 	//texture path must not be empty
@@ -204,7 +172,7 @@ TextureCheckResult IsValidTexture(
 		string title = "Texture error [texture]";
 		string reason = "Cannot load a texture with no path!";
 
-		ForceClose(title, reason);
+		KalaWindowCore::ForceClose(title, reason);
 	}
 
 	string texturePathName = path(texturePath).filename().string();
@@ -216,7 +184,7 @@ TextureCheckResult IsValidTexture(
 		string title = "Texture error [texture]";
 		string reason = "Texture '" + textureName + "' path '" + texturePathName + "' does not exist!";
 
-		ForceClose(title, reason);
+		KalaWindowCore::ForceClose(title, reason);
 
 		return TextureCheckResult::RESULT_INVALID;
 	}
@@ -235,7 +203,7 @@ TextureCheckResult IsValidTexture(
 		string title = "Texture error [texture]";
 		string reason = "Texture '" + textureName + "' has no extension. You must use png, jpg or jpeg!";
 
-		ForceClose(title, reason);
+		KalaWindowCore::ForceClose(title, reason);
 
 		return TextureCheckResult::RESULT_INVALID;
 	}
@@ -254,7 +222,7 @@ TextureCheckResult IsValidTexture(
 		string title = "Texture error [texture]";
 		string reason = "Texture '" + textureName + "' has an invalid extension '" + thisExtension + "'. Only png, jpg and jpeg are allowed!";
 
-		ForceClose(title, reason);
+		KalaWindowCore::ForceClose(title, reason);
 
 		return TextureCheckResult::RESULT_INVALID;
 	}

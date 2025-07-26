@@ -19,6 +19,7 @@
 #include "core/log.hpp"
 #include "core/core.hpp"
 
+#include "core/gamecore.hpp"
 #include "graphics/render.hpp"
 #include "graphics/texture.hpp"
 
@@ -26,7 +27,8 @@
 using KalaKit::KalaCrashHandler;
 
 //kalawindow
-using KalaWindow::Graphics::ShutdownState;
+using KalaWindow::Core::KalaWindowCore;
+using KalaWindow::Core::ShutdownState;
 using KalaWindow::Graphics::Window;
 using KalaWindow::Graphics::WindowState;
 using KalaWindow::Core::Input;
@@ -79,16 +81,15 @@ namespace CircuitGame::Core
 
 		KalaCrashHandler::Initialize();
 
-		Window::SetUserShutdownFunction(Render::Shutdown);
+		KalaWindowCore::SetUserShutdownFunction(Render::Shutdown);
 
 		string title = "CircuitGame";
 		float width = 800;
 		float height = 600;
 
-		unique_ptr<Window> newWindow = Window::Initialize(
+		mainWindow = Window::Initialize(
 			title,
 			vec2{ width, height });
-		mainWindow = newWindow.get();
 
 		if (mainWindow == nullptr) return;
 
@@ -131,7 +132,7 @@ namespace CircuitGame::Core
 	{
 		while (isRunning)
 		{
-			Window::Update(mainWindow);
+			mainWindow->Update();
 
 			if (Input::IsKeyPressed(Key::Num1))
 			{
@@ -211,7 +212,7 @@ namespace CircuitGame::Core
 	{
 		Render::Shutdown();
 
-		Window::Shutdown(
+		KalaWindowCore::Shutdown(
 			ShutdownState::SHUTDOWN_CRITICAL,
 			false);
 	}

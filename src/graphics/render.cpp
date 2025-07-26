@@ -24,15 +24,9 @@
 
 //kalawindow
 using KalaWindow::Graphics::Window;
-using KalaWindow::Graphics::PopupAction;
-using KalaWindow::Graphics::PopupResult;
-using KalaWindow::Graphics::PopupType;
-using KalaWindow::Graphics::ShutdownState;
 using KalaWindow::Graphics::OpenGL::Renderer_OpenGL;
 using KalaWindow::Core::Logger;
 using KalaWindow::Core::LogType;
-using KalaWindow::Core::TimeFormat;
-using KalaWindow::Core::DateFormat;
 using KalaWindow::Graphics::OpenGL::OpenGLCore;
 using KalaWindow::Graphics::OpenGL::Shader_OpenGL;
 using KalaWindow::Graphics::OpenGL::ShaderStage;
@@ -74,10 +68,6 @@ struct GameObjectData
 	Shader_OpenGL* shader;
 };
 
-static void ForceClose(
-	const string& title,
-	const string& reason);
-
 static bool InitializeTextures(const vector<TextureData>& textures);
 static bool InitializeShaders(const vector<ShaderData>& shaders);
 static bool CreateGameObjects(const vector<GameObjectData>& gameObjects);
@@ -88,7 +78,7 @@ namespace CircuitGame::Graphics
 {
 	bool Render::Initialize()
 	{
-		mainWindow = Window::windows.front();
+		mainWindow = Window::runtimeWindows.front();
 
 		if (!Renderer_OpenGL::Initialize(mainWindow)) return false;
 
@@ -157,30 +147,6 @@ namespace CircuitGame::Graphics
 
 		createdTextures.clear();
 		createdCubes.clear();
-	}
-}
-
-void ForceClose(
-	const string& title,
-	const string& reason)
-{
-	Logger::Print(
-		reason,
-		"TEXTURE",
-		LogType::LOG_ERROR,
-		2,
-		TimeFormat::TIME_NONE,
-		DateFormat::DATE_NONE);
-
-	Window* mainWindow = Window::windows.front();
-	if (mainWindow->CreatePopup(
-		title,
-		reason,
-		PopupAction::POPUP_ACTION_OK,
-		PopupType::POPUP_TYPE_ERROR)
-		== PopupResult::POPUP_RESULT_OK)
-	{
-		Window::Shutdown(ShutdownState::SHUTDOWN_FAILURE);
 	}
 }
 
@@ -260,26 +226,6 @@ bool CreateGameObjects(const vector<GameObjectData>& gameObjects)
 		Texture* tex,
 		Shader_OpenGL* shader)
 		{
-			if (tex)
-			{
-				string title = "Render error";
-				string reason = "Cannot create gameobject '" + name + "' because its texture is nullptr!";
-
-				ForceClose(title, reason);
-
-				return false;
-			}
-
-			if (shader == nullptr)
-			{
-				string title = "Render error";
-				string reason = "Cannot create gameobject '" + name + "' because its shader is nullptr!";
-
-				ForceClose(title, reason);
-
-				return false;
-			}
-
 			Cube* cube = new Cube();
 			if (cube->Initialize(
 				name,

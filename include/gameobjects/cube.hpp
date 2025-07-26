@@ -34,7 +34,7 @@ namespace CircuitGame::GameObjects
 			const vec3& rot = vec3(0),
 			const vec3& scale = vec3(1)) override;
 
-		Texture* GetTexture() { return texture; }
+		const Texture* GetTexture() { return texture; }
 		void SetTexture(Texture* newTexture) { texture = newTexture; }
 
 		bool Render() override;

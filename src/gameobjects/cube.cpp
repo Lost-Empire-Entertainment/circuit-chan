@@ -22,14 +22,8 @@
 #include "graphics/render.hpp"
 
 using KalaWindow::Graphics::Window;
-using KalaWindow::Graphics::ShutdownState;
-using KalaWindow::Graphics::PopupAction;
-using KalaWindow::Graphics::PopupResult;
-using KalaWindow::Graphics::PopupType;
 using KalaWindow::Core::Logger;
 using KalaWindow::Core::LogType;
-using KalaWindow::Core::TimeFormat;
-using KalaWindow::Core::DateFormat;
 using KalaWindow::Graphics::OpenGL::Shader_OpenGL;
 
 using CircuitGame::Graphics::Texture;
@@ -91,49 +85,50 @@ namespace CircuitGame::GameObjects
 	{
 		if (!CanUpdate()) return false;
 
-		if (GetTexture() == nullptr)
+		string name = GetName();
+		const Texture* tex = GetTexture();
+
+		if (tex == nullptr)
 		{
 			Logger::Print(
-				"Cannot render gameobject '" + GetName() + "' because its texture is nullptr!",
+				"Cannot render gameobject '" + name + "' because its texture is nullptr!",
 				"GAMEOBJECT",
 				LogType::LOG_ERROR,
 				2);
 
 			return false;
 		}
-		if (GetShader() == nullptr)
-		{
-			Logger::Print(
-				"Cannot render gameobject '" + GetName() + "' because its shader is nullptr!",
-				"GAMEOBJECT",
-				LogType::LOG_ERROR,
-				2);
-
-			return false;
-		}
-
-		string pos = 
-			to_string(GetPos().x) + ", " +
-			to_string(GetPos().y) + ", " + 
-			to_string(GetPos().z);
-		Logger::Print(
-			"Position: " + pos,
-			"GAMEOBJECT",
-			LogType::LOG_INFO,
-			0,
-			TimeFormat::TIME_NONE,
-			DateFormat::DATE_NONE);
-
-		unsigned int thisID = GetTexture()->GetTextureID();
-		if (!GetShader()->Bind()) return false;
 		
+		const Shader_OpenGL* shader = GetShader();
+		if (shader == nullptr)
+		{
+			Logger::Print(
+				"Cannot render gameobject '" + name + "' because its shader is nullptr!",
+				"GAMEOBJECT",
+				LogType::LOG_ERROR,
+				2);
+
+			return false;
+		}
+
+		vec3 pos = GetPos();
+		string posString = 
+			to_string(pos.x) + ", " +
+			to_string(pos.y) + ", " +
+			to_string(pos.z);
+		Logger::Print("Position: " + posString);
+
+		if (!shader->Bind()) return false;
+		
+		unsigned int id = tex->GetTextureID();
+
 		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, thisID);
+		glBindTexture(GL_TEXTURE_2D, id);
 
 		mat4 model = mat4(1.0f);
 		model = translate(model, vec3(0.0f, 1.0f, 0.0f));
 
-		GetShader()->SetMat4(thisID, "model", model);
+		shader->SetMat4(id, "model", model);
 
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
