@@ -66,7 +66,7 @@ struct GameObjectData
 {
 	string name;
 	GameObjectType type;
-	Texture* tex;
+	Texture* texture;
 	Shader_OpenGL* shader;
 };
 
@@ -109,11 +109,12 @@ namespace CircuitGame::Graphics
 		if (!InitializeShaders(shaders)) return false;
 
 		vector<GameObjectData> gameObjects{};
+
 		GameObjectData cubeData =
 		{
 			.name = "cube_1",
 			.type = GameObjectType::cube,
-			.tex = createdTextures["texture_cube"].get(),
+			.texture = Render::createdTextures["texture_cube"].get(),
 			.shader = Shader_OpenGL::createdShaders["shader_cube"].get()
 		};
 		gameObjects.push_back(cubeData);
@@ -203,34 +204,14 @@ bool InitializeShaders(const vector<ShaderData>& shaders)
 
 bool CreateGameObjects(const vector<GameObjectData>& gameObjects)
 {
-	auto CreateGameObject = [](
-		const string& name,
-		GameObjectType type,
-		Texture* tex,
-		Shader_OpenGL* shader)
-		{
-			Cube* cube = new Cube();
-			if (cube->Initialize(
-				name,
-				shader) == nullptr)
-			{
-				return false;
-			}
-			cube->SetTexture(tex);
-
-			return true;
-		};
-
 	for (const auto& obj : gameObjects)
 	{
-		if (!CreateGameObject(
+		Cube* cube = new Cube();
+		cube->Initialize(
 			obj.name,
-			obj.type,
-			obj.tex,
-			obj.shader))
-		{
-			return false;
-		}
+			obj.shader);
+
+		cube->SetTexture(obj.texture);
 	}
 
 	return true;

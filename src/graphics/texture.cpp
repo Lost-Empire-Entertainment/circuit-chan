@@ -159,20 +159,24 @@ TextureCheckResult IsValidTexture(
 
 	if (textureName.empty())
 	{
-		string title = "Texture error [texture]";
+		string title = "Texture Error";
 		string reason = "Cannot load a texture with no name!";
 
 		KalaWindowCore::ForceClose(title, reason);
+
+		return TextureCheckResult::RESULT_INVALID;
 	}
 
 	//texture path must not be empty
 
 	if (texturePath.empty())
 	{
-		string title = "Texture error [texture]";
+		string title = "Texture Error";
 		string reason = "Cannot load a texture with no path!";
 
 		KalaWindowCore::ForceClose(title, reason);
+
+		return TextureCheckResult::RESULT_INVALID;
 	}
 
 	string texturePathName = path(texturePath).filename().string();
@@ -181,7 +185,7 @@ TextureCheckResult IsValidTexture(
 
 	if (!exists(texturePath))
 	{
-		string title = "Texture error [texture]";
+		string title = "Texture Error";
 		string reason = "Texture '" + textureName + "' path '" + texturePathName + "' does not exist!";
 
 		KalaWindowCore::ForceClose(title, reason);
@@ -200,7 +204,7 @@ TextureCheckResult IsValidTexture(
 
 	if (!path(texturePath).has_extension())
 	{
-		string title = "Texture error [texture]";
+		string title = "Texture Error";
 		string reason = "Texture '" + textureName + "' has no extension. You must use png, jpg or jpeg!";
 
 		KalaWindowCore::ForceClose(title, reason);
@@ -219,7 +223,7 @@ TextureCheckResult IsValidTexture(
 
 	if (!isExtensionValid)
 	{
-		string title = "Texture error [texture]";
+		string title = "Texture Error";
 		string reason = "Texture '" + textureName + "' has an invalid extension '" + thisExtension + "'. Only png, jpg and jpeg are allowed!";
 
 		KalaWindowCore::ForceClose(title, reason);
