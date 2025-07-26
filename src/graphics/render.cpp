@@ -206,10 +206,10 @@ bool CreateGameObjects(const vector<GameObjectData>& gameObjects)
 {
 	for (const auto& obj : gameObjects)
 	{
-		Cube* cube = new Cube();
-		cube->Initialize(
+		Cube* cube = Cube::Initialize(
 			obj.name,
-			obj.shader);
+			obj.shader,
+			vec3(-5, 0, 0));
 
 		cube->SetTexture(obj.texture);
 	}

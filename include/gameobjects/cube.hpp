@@ -25,14 +25,12 @@ namespace CircuitGame::GameObjects
 	class Cube : public GameObject
 	{
 	public:
-		Cube() = default;
-
-		GameObject* Initialize(
+		static Cube* Initialize(
 			const string& name,
 			Shader_OpenGL* shader,
 			const vec3& pos = vec3(0),
 			const vec3& rot = vec3(0),
-			const vec3& scale = vec3(1)) override;
+			const vec3& scale = vec3(1));
 
 		const Texture* GetTexture() { return texture; }
 		void SetTexture(Texture* newTexture) { texture = newTexture; }
