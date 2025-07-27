@@ -12,6 +12,9 @@
 
 namespace CircuitGame::GameObjects
 {
+	//TODO: ADD SETTER LIMITS TO GAMEOBJECT CLASSES
+	//+ OTHERS WHERE NEEDED TO PREVENT MALFORMED VALUES AND CRASHES
+
 	using std::string;
 
 	using KalaWindow::Graphics::OpenGL::Shader_OpenGL;
