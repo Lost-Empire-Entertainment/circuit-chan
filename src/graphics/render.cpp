@@ -219,11 +219,7 @@ bool CreateGameObjects(const vector<GameObjectData>& gameObjects)
 
 void ResizeProjectionMatrix()
 {
-	/*
-	
-	//TODO: FIX THIS
-
-	Shader_OpenGL* shader = Cube::GetCubeShader();
+	Shader_OpenGL* shader = Shader_OpenGL::createdShaders["shdader_cube"].get();
 	if (!shader) return;
 
 	vec2 framebufferSize = mainWindow->GetSize();
@@ -280,5 +276,4 @@ void ResizeProjectionMatrix()
 			GL_FALSE,
 			value_ptr(model));
 	}
-	*/
 }

@@ -15,6 +15,9 @@
 
 namespace KalaWindow::Graphics
 {
+	//TODO: CREATE AN INTERNAL FRAMEBUFFER SYSTEM WHERE THE INTERNAL FRAMEBUFFER RESOLUTION ALWAYS MATCHES
+	//USER RESOLUTION WHILE WINDOW RESOLUTION SCALES DYNAMICALLY
+
 	using std::string;
 	using std::unique_ptr;
 	using std::vector;
@@ -240,32 +243,32 @@ namespace KalaWindow::Graphics
 		static void SetVulkanLib(uintptr_t newVulkanLib) { vulkanLib = newVulkanLib; }
 
 #ifdef _WIN32
-		WindowData& GetWindowData() { return window_windows; }
+		const WindowData& GetWindowData() const { return window_windows; }
 		void SetWindowData(const WindowData& newWindowStruct)
 		{
 			window_windows = newWindowStruct;
 		}
 #elif __linux__
-		WindowData& GetWindowData() { return window_x11; }
+		const WindowData& GetWindowData() const { return window_x11; }
 		void SetWindowData(const WindowData& newWindowStruct)
 		{
 			window_x11 = newWindowStruct;
 		}
 #endif
 
-		OpenGLData& GetOpenGLData() { return openglData; }
+		const OpenGLData& GetOpenGLData() const { return openglData; }
 		void SetOpenGLData(const OpenGLData& newOpenGLData)
 		{
 			openglData = newOpenGLData;
 		}
 
-		VulkanData_Core& GetVulkanCoreData() { return vulkanCoreData; }
+		const VulkanData_Core& GetVulkanCoreData() const { return vulkanCoreData; }
 		void SetVulkanCoreData(const VulkanData_Core& newVulkanCoreData)
 		{
 			vulkanCoreData = newVulkanCoreData;
 		}
 
-		VulkanShaderWindowData& GetVulkanShaderWindowStruct() { return vulkanShaderWindowData; }
+		const VulkanShaderWindowData& GetVulkanShaderWindowStruct() const { return vulkanShaderWindowData; }
 		void SetVulkanShaderWindowStruct(const VulkanShaderWindowData& newVulkanShaderWindowData)
 		{
 			vulkanShaderWindowData = newVulkanShaderWindowData;
@@ -275,17 +278,17 @@ namespace KalaWindow::Graphics
 		void SetTitle(const string& newTitle);
 
 		//Returns dpi-accurate framebuffer size.
-		vec2 GetSize();
+		vec2 GetSize() const;
 		void SetSize(vec2 newSize);
 
-		vec2 GetPosition();
-		void SetPosition(vec2 newPos);
+		vec2 GetPosition() const;
+		void SetPosition(vec2 newPos) const;
 
 		vec2 GetMaxSize() const { return maxSize; }
-		void SetMaxSize(const vec2& newMaxSize) { maxSize = newMaxSize; }
+		void SetMaxSize(vec2 newMaxSize) { maxSize = newMaxSize; }
 
 		vec2 GetMinSize() const { return minSize; }
-		void SetMinSize(const vec2& newMinSize) { minSize = newMinSize; }
+		void SetMinSize(vec2 newMinSize) { minSize = newMinSize; }
 
 		bool IsInitialized() const { return isInitialized; }
 		void SetInitializedState(bool newInitialized) { isInitialized = newInitialized; }
@@ -300,7 +303,7 @@ namespace KalaWindow::Graphics
 		//Returns false if this window is not rendered but also not minimized
 		bool IsVisible() const;
 		//Can assign the window state to one of the supported types
-		void SetWindowState(WindowState state);
+		void SetWindowState(WindowState state) const;
 
 		//Returns true if window is idle - not focused, minimized or not visible.
 		bool IsIdle() const { return isIdle; }
@@ -309,7 +312,7 @@ namespace KalaWindow::Graphics
 		void SetResizeCallback(const function<void()>& callback) { resizeCallback = callback; }
 
 		void TriggerRedraw() const { if (redrawCallback) redrawCallback(); }
-		void SetRedrawCallback(const function<void()>& callback) { resizeCallback = callback; }
+		void SetRedrawCallback(const function<void()>& callback) { redrawCallback = callback; }
 
 		void Update();
 
@@ -349,7 +352,7 @@ namespace KalaWindow::Graphics
 		VulkanData_Core vulkanCoreData{}; //The core Vulkan data of this window
 		VulkanShaderWindowData vulkanShaderWindowData{}; //Window-level VkPipeline data
 
-		function<void()> redrawCallback{}; //Called whenever the window needs to be redrawn
 		function<void()> resizeCallback{}; //Called whenever the window needs to be resized
+		function<void()> redrawCallback{}; //Called whenever the window needs to be redrawn
 	};
 }
