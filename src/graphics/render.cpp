@@ -10,11 +10,13 @@
 
 //kalawindow
 #include "graphics/window.hpp"
+#include "graphics/texture.hpp"
 #include "graphics/opengl/opengl.hpp"
 #include "graphics/opengl/opengl_core.hpp"
 #include "graphics/opengl/shader_opengl.hpp"
 #include "core/log.hpp"
 #include "core/core.hpp"
+#include "core/containers.hpp"
 
 //glm
 #include "glm/gtc/matrix_transform.hpp"
@@ -27,6 +29,7 @@
 
 //kalawindow
 using KalaWindow::Graphics::Window;
+using KalaWindow::Graphics::Texture;
 using KalaWindow::Graphics::OpenGL::Renderer_OpenGL;
 using KalaWindow::Graphics::OpenGL::OpenGLCore;
 using KalaWindow::Graphics::OpenGL::Shader_OpenGL;
@@ -88,7 +91,7 @@ namespace CircuitGame::Graphics
 {
 	bool Render::Initialize()
 	{
-		mainWindow = Window::runtimeWindows.front();
+		mainWindow = runtimeWindows.front();
 
 		if (!Renderer_OpenGL::Initialize(mainWindow)) return false;
 
@@ -126,8 +129,8 @@ namespace CircuitGame::Graphics
 		{
 			.name = "cube_1",
 			.type = GameObjectType::cube,
-			.texture = Render::createdTextures["texture_cube"].get(),
-			.shader = Shader_OpenGL::createdShaders["shader_cube"].get()
+			.texture = createdOpenGLTextures["texture_cube"].get(),
+			.shader = createdOpenGLShaders["shader_cube"].get()
 		};
 		gameObjects.push_back(cubeData);
 		CreateGameObjects(gameObjects);
@@ -172,7 +175,6 @@ namespace CircuitGame::Graphics
 			obj->SetUpdate(false);
 		}
 
-		createdTextures.clear();
 		createdCubes.clear();
 	}
 }
@@ -249,7 +251,7 @@ bool CreateGameObjects(const vector<GameObjectData>& gameObjects)
 
 void ResizeProjectionMatrix()
 {
-	Shader_OpenGL* shader = Shader_OpenGL::createdShaders["shdader_cube"].get();
+	Shader_OpenGL* shader = createdOpenGLShaders["shdader_cube"].get();
 	if (!shader) return;
 
 	vec2 framebufferSize = mainWindow->GetSize();

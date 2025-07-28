@@ -21,7 +21,6 @@
 
 #include "core/gamecore.hpp"
 #include "graphics/render.hpp"
-#include "graphics/texture.hpp"
 
 //kalacrashhandler
 using KalaKit::KalaCrashHandler;
@@ -40,7 +39,6 @@ using KalaWindow::Graphics::OpenGL::Renderer_OpenGL;
 
 using CircuitGame::Core::Game;
 using CircuitGame::Graphics::Render;
-using CircuitGame::Graphics::Texture;
 
 using std::thread;
 using std::chrono::milliseconds;

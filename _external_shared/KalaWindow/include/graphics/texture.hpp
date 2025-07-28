@@ -6,9 +6,6 @@
 #pragma once
 
 #include <string>
-#include <unordered_map>
-#include <vector>
-#include <memory>
 
 #include "core/platform.hpp"
 #include "core/log.hpp"
@@ -19,9 +16,6 @@ namespace KalaWindow::Graphics
 	using KalaWindow::Core::LogType;
 
 	using std::string;
-	using std::unordered_map;
-	using std::vector;
-	using std::unique_ptr;
 
 	//Texture internal data type
 	enum class TextureType
@@ -90,10 +84,6 @@ namespace KalaWindow::Graphics
 	class KALAWINDOW_API Texture
 	{
 	public:
-		static inline unordered_map<string, unique_ptr<Texture>> createdTextures{};
-
-		static inline vector<Texture*> runtimeTextures{};
- 
 		//Load a texture from the chosen path.
 		//Leaving size as vec2(0) will get the default texture size in its file
 		virtual Texture* LoadTexture(
