@@ -9,9 +9,9 @@
 
 //kalawindow
 #include "graphics/opengl/shader_opengl.hpp"
+#include "graphics/opengl/texture_opengl.hpp"
 
 #include "gameobjects/gameobject.hpp"
-#include "graphics/texture.hpp"
 
 namespace CircuitGame::GameObjects
 {
@@ -19,8 +19,7 @@ namespace CircuitGame::GameObjects
 
 	//kalawindow
 	using KalaWindow::Graphics::OpenGL::Shader_OpenGL;
-
-	using CircuitGame::Graphics::Texture;
+	using KalaWindow::Graphics::OpenGL::Texture_OpenGL;
 
 	class Cube : public GameObject
 	{
@@ -32,12 +31,12 @@ namespace CircuitGame::GameObjects
 			const vec3& rot = vec3(0),
 			const vec3& scale = vec3(1)) override;
 
-		const Texture* GetTexture() { return texture; }
-		void SetTexture(Texture* newTexture) { texture = newTexture; }
+		const Texture_OpenGL* GetTexture() { return texture; }
+		void SetTexture(Texture_OpenGL* newTexture) { texture = newTexture; }
 
 		bool Render() override;
 		~Cube() override;
 	private:
-		Texture* texture{};
+		Texture_OpenGL* texture{};
 	};
 }

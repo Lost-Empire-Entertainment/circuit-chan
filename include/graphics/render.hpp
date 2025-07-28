@@ -12,7 +12,6 @@
 
 #include "gameobjects/cube.hpp"
 #include "graphics/camera.hpp"
-#include "graphics/texture.hpp"
 
 namespace CircuitGame::Graphics
 {
@@ -23,16 +22,13 @@ namespace CircuitGame::Graphics
 
 	using CircuitGame::GameObjects::Cube;
 	using CircuitGame::Graphics::Camera;
-	using CircuitGame::Graphics::Texture;
 
 	class Render
 	{
 	public:
-		static inline unordered_map<string, unique_ptr<Texture>> createdTextures{};
 		static inline unordered_map<string, unique_ptr<Cube>> createdCubes{};
 		static inline unique_ptr<Camera> createdCamera{};
 
-		static inline vector<Texture*> runtimeTextures{};
 		static inline vector<Cube*> runtimeCubes{};
 
 		//Initializes the render loop

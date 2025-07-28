@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <filesystem>
+#include <memory>
 
 //kalawindow
 #include "graphics/window.hpp"
@@ -31,6 +32,10 @@ using KalaWindow::Graphics::OpenGL::OpenGLCore;
 using KalaWindow::Graphics::OpenGL::Shader_OpenGL;
 using KalaWindow::Graphics::OpenGL::ShaderStage;
 using KalaWindow::Graphics::OpenGL::ShaderType;
+using KalaWindow::Graphics::OpenGL::Texture_OpenGL;
+using KalaWindow::Graphics::TextureType;
+using KalaWindow::Graphics::TextureFormat;
+using KalaWindow::Graphics::TextureUsage;
 using KalaWindow::Core::Logger;
 using KalaWindow::Core::LogType;
 using KalaWindow::Core::KalaWindowCore;
@@ -38,7 +43,6 @@ using KalaWindow::Core::KalaWindowCore;
 using CircuitGame::GameObjects::GameObject;
 using CircuitGame::GameObjects::GameObjectType;
 using CircuitGame::GameObjects::Cube;
-using CircuitGame::Graphics::Texture;
 using CircuitGame::Graphics::Render;
 
 using glm::ortho;
@@ -48,6 +52,7 @@ using std::string;
 using std::vector;
 using std::filesystem::path;
 using std::filesystem::current_path;
+using std::unique_ptr;
 using std::make_unique;
 
 static vec2 lastSize{};
@@ -69,7 +74,7 @@ struct GameObjectData
 {
 	string name;
 	GameObjectType type;
-	Texture* texture;
+	Texture_OpenGL* texture;
 	Shader_OpenGL* shader;
 };
 
@@ -179,9 +184,13 @@ bool InitializeTextures(const vector<TextureData>& textures)
 		string textureName = texture.textureName;
 		string texturePath = texture.texturePath;
 
-		Texture* tex = Texture::CreateTexture(
+		unique_ptr<Texture_OpenGL> tex = make_unique<Texture_OpenGL>();
+		tex->LoadTexture(
 			textureName,
-			texturePath);
+			texturePath,
+			TextureType::Type_2D,
+			TextureFormat::Format_RGBA8,
+			TextureUsage::Usage_None);
 	}
 
 	return true;

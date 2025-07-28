@@ -16,17 +16,17 @@
 #include "core/log.hpp"
 #include "graphics/opengl/shader_opengl.hpp"
 #include "graphics/opengl/opengl_core.hpp"
+#include "graphics/texture.hpp"
 
 #include "gameobjects/cube.hpp"
-#include "graphics/texture.hpp"
 #include "graphics/render.hpp"
 
 using KalaWindow::Graphics::Window;
 using KalaWindow::Core::Logger;
 using KalaWindow::Core::LogType;
 using KalaWindow::Graphics::OpenGL::Shader_OpenGL;
+using KalaWindow::Graphics::Texture;
 
-using CircuitGame::Graphics::Texture;
 using CircuitGame::Graphics::Render;
 
 using std::filesystem::path;
@@ -86,7 +86,7 @@ namespace CircuitGame::GameObjects
 		if (!CanUpdate()) return false;
 
 		string name = GetName();
-		const Texture* tex = GetTexture();
+		const Texture_OpenGL* tex = GetTexture();
 
 		if (tex == nullptr)
 		{
@@ -120,7 +120,7 @@ namespace CircuitGame::GameObjects
 
 		if (!shader->Bind()) return false;
 		
-		unsigned int id = tex->GetTextureID();
+		unsigned int id = tex->GetID();
 
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, id);
