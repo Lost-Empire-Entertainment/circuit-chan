@@ -20,6 +20,59 @@ using glm::mat3;
 using glm::mat4;
 
 //
+// DEFINE SHORTHANDS FOR SAFE MATH VARIABLES
+//
+
+//8-bit unsigned int
+//Min: 0
+//Max: 255
+using u8 = uint8_t;
+
+//16-bit unsigned int
+//Min: 0
+//Max: 65,535
+using u16 = uint16_t;
+
+//32-bit unsigned int
+//Min: 0
+//Max: 4,294,967,295
+using u32 = uint32_t; 
+
+//64-bit unsigned int
+//Replaces handles and pointers (uintptr_t)
+//Min: 0
+//Max: 18 quintillion
+using u64 = uint64_t;
+
+//8-bit int
+//Min: -128
+//Max: 127
+using i8 = int8_t;
+
+//16-bit int
+//Min: -32,768
+//Max: 32,767
+using i16 = int16_t;
+
+//32-bit int
+//Min: -2,147,483,648
+//Max: 2,147,483,647
+using i32 = int32_t;
+
+//64-bit int
+//Min: -9 quintillion
+//Max: 9 quintillion
+using i64 = int64_t;
+
+//32-bit float
+//6 decimal precision
+using f32 = float;
+
+//64-bit float
+//15 decimal precision
+using f64 = double;
+
+//
 // DLL EXPORT/IMPORT MACRO
 //
 
@@ -71,9 +124,9 @@ requires is_integral_v<T>
 //  - classes
 //  - functions
 //  - arrays
-template<typename T> static constexpr uintptr_t FromVar(T* h)
+template<typename T> static constexpr u64 FromVar(T* h)
 {
-	return reinterpret_cast<uintptr_t>(h);
+	return reinterpret_cast<u64>(h);
 }
 
 //Converts an integral handle to an uintptr_t.
@@ -82,8 +135,8 @@ template<typename T> static constexpr uintptr_t FromVar(T* h)
 //  - enums
 //  - bitmask flags
 //  - opaque handles
-template<typename T> static uintptr_t FromVar(T h)
+template<typename T> static u64 FromVar(T h)
 requires is_integral_v<T>
 {
-	return static_cast<uintptr_t>(h);
+	return static_cast<u64>(h);
 }

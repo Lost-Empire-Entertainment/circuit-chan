@@ -34,13 +34,16 @@ namespace KalaWindow::Graphics::OpenGL
 	{
 		ShaderType shaderType;
 		string shaderPath;
-		unsigned int shaderID;
+		u32 shaderID;
 	};
 
 	class KALAWINDOW_API Shader_OpenGL
 	{
 	public:
 		static inline unordered_map<string, unique_ptr<Shader_OpenGL>> createdShaders{};
+
+		//TODO: ENSURE RUNTIME SHADERS ARE CORRECTLY USED AND WE DONT ABUSE CREATEDSHADERS MAP
+		static inline vector<Shader_OpenGL*> runtimeShaders{};
 
 		static Shader_OpenGL* CreateShader(
 			const string& shaderName,
@@ -92,7 +95,7 @@ namespace KalaWindow::Graphics::OpenGL
 
 		Window* GetTargetWindow() const { return targetWindow; }
 
-		unsigned int GetProgramID() const { return programID; }
+		u32 GetProgramID() const { return programID; }
 
 		const vector<ShaderStage>& GetAllShaders() const { return shaders; }
 
@@ -120,7 +123,7 @@ namespace KalaWindow::Graphics::OpenGL
 			}
 		}
 
-		unsigned int GetShaderID(ShaderType type) const
+		u32 GetShaderID(ShaderType type) const
 		{
 			for (const auto& stage : shaders)
 			{
@@ -208,17 +211,17 @@ namespace KalaWindow::Graphics::OpenGL
 
 		void HotReload();
 
-		void SetBool(unsigned int programID, const string& name, bool value) const;
-		void SetInt(unsigned int programID, const string& name, int value) const;
-		void SetFloat(unsigned int programID, const string& name, float value) const;
+		void SetBool(u32 programID, const string& name, bool value) const;
+		void SetInt(u32 programID, const string& name, i32 value) const;
+		void SetFloat(u32 programID, const string& name, f32 value) const;
 
-		void SetVec2(unsigned int programID, const string& name, const vec2& value) const;
-		void SetVec3(unsigned int programID, const string& name, const vec3& value) const;
-		void SetVec4(unsigned int programID, const string& name, const vec4& value) const;
+		void SetVec2(u32 programID, const string& name, const vec2& value) const;
+		void SetVec3(u32 programID, const string& name, const vec3& value) const;
+		void SetVec4(u32 programID, const string& name, const vec4& value) const;
 
-		void SetMat2(unsigned int programID, const string& name, const mat2& mat) const;
-		void SetMat3(unsigned int programID, const string& name, const mat3& mat) const;
-		void SetMat4(unsigned int programID, const string& name, const mat4& mat) const;
+		void SetMat2(u32 programID, const string& name, const mat2& mat) const;
+		void SetMat3(u32 programID, const string& name, const mat3& mat) const;
+		void SetMat4(u32 programID, const string& name, const mat4& mat) const;
 
 		//Destroys this created shader and its data
 		~Shader_OpenGL();
@@ -227,7 +230,7 @@ namespace KalaWindow::Graphics::OpenGL
 
 		Window* targetWindow{};
 
-		unsigned int programID{};
+		u32 programID{};
 
 		vector<ShaderStage> shaders{};
 	};
