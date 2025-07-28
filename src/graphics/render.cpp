@@ -21,6 +21,7 @@
 
 #include "graphics/render.hpp"
 #include "graphics/texture.hpp"
+#include "gameobjects/gameobject.hpp"
 #include "gameobjects/cube.hpp"
 
 //kalawindow
@@ -34,6 +35,7 @@ using KalaWindow::Core::Logger;
 using KalaWindow::Core::LogType;
 using KalaWindow::Core::KalaWindowCore;
 
+using CircuitGame::GameObjects::GameObject;
 using CircuitGame::GameObjects::GameObjectType;
 using CircuitGame::GameObjects::Cube;
 using CircuitGame::Graphics::Texture;
@@ -46,6 +48,7 @@ using std::string;
 using std::vector;
 using std::filesystem::path;
 using std::filesystem::current_path;
+using std::make_unique;
 
 static vec2 lastSize{};
 
@@ -206,10 +209,12 @@ bool CreateGameObjects(const vector<GameObjectData>& gameObjects)
 {
 	for (const auto& obj : gameObjects)
 	{
-		Cube* cube = Cube::Initialize(
-			obj.name,
-			obj.shader,
-			vec3(-5, 0, 0));
+		auto cube = make_unique<Cube>();
+		
+		cube->Initialize(
+			"cube_1", 
+			obj.shader, 
+			vec3(-5.0f, 0.0f, 0.0f));
 
 		cube->SetTexture(obj.texture);
 	}

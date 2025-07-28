@@ -29,6 +29,13 @@ namespace CircuitGame::GameObjects
 	class GameObject
 	{
 	public:
+		virtual GameObject* Initialize(
+			const string& name,
+			Shader_OpenGL* shader,
+			const vec3& pos = vec3(0),
+			const vec3& rot = vec3(0),
+			const vec3& scale = vec3(1)) = 0;
+
 		bool CanUpdate() const { return canUpdate; }
 		void SetUpdate(bool newCanUpdate) { canUpdate = newCanUpdate; }
 
@@ -52,7 +59,7 @@ namespace CircuitGame::GameObjects
 
 		virtual bool Render() = 0;
 
-		virtual ~GameObject() = 0;
+		virtual ~GameObject() {};
 	private:
 		bool canUpdate = false;
 
@@ -65,6 +72,4 @@ namespace CircuitGame::GameObjects
 
 		Shader_OpenGL* shader{};
 	};
-
-	inline GameObject::~GameObject() {}
 }

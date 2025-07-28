@@ -49,7 +49,7 @@ static void CreateCube();
 
 namespace CircuitGame::GameObjects
 {
-	Cube* Cube::Initialize(
+	GameObject* Cube::Initialize(
 		const string& name,
 		Shader_OpenGL* shader,
 		const vec3& pos,
