@@ -87,6 +87,10 @@ namespace CircuitGame::Graphics
 
 		if (!Renderer_OpenGL::Initialize(mainWindow)) return false;
 
+		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); //Ensures callbacks run immediately
+		glDebugMessageCallback(DebugCallback, nullptr);
+
 		mainWindow->SetRedrawCallback(Redraw);
 
 		mainWindow->SetResizeCallback(ResizeProjectionMatrix);
@@ -136,9 +140,21 @@ namespace CircuitGame::Graphics
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f); //dark gray
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		for (const auto& object : runtimeCubes)
+		if (runtimeCubes.size() > 0)
 		{
-			object->Render();
+			for (const auto& object : runtimeCubes)
+			{
+				if (object == nullptr)
+				{
+					Logger::Print(
+						"Failed to render a cube because it was nullptr!",
+						"RENDER",
+						LogType::LOG_DEBUG);
+
+					continue;
+				}
+				object->Render();
+			}
 		}
 
 		Renderer_OpenGL::SwapOpenGLBuffers(mainWindow);
