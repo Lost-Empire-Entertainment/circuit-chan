@@ -60,7 +60,8 @@ using std::make_unique;
 
 static vec2 lastSize{};
 
-static Window* mainWindow{};
+u32 texture_cube_ID{};
+u32 shader_cube_ID{};
 
 struct TextureData
 {
@@ -91,8 +92,6 @@ namespace CircuitGame::Graphics
 {
 	bool Render::Initialize()
 	{
-		mainWindow = runtimeWindows.front();
-
 		if (!Renderer_OpenGL::Initialize(mainWindow)) return false;
 
 		glEnable(GL_DEBUG_OUTPUT);
@@ -129,8 +128,8 @@ namespace CircuitGame::Graphics
 		{
 			.name = "cube_1",
 			.type = GameObjectType::cube,
-			.texture = createdOpenGLTextures["texture_cube"].get(),
-			.shader = createdOpenGLShaders["shader_cube"].get()
+			.texture = createdOpenGLTextures[texture_cube_ID].get(),
+			.shader = createdOpenGLShaders[shader_cube_ID].get()
 		};
 		gameObjects.push_back(cubeData);
 		CreateGameObjects(gameObjects);
@@ -193,6 +192,8 @@ bool InitializeTextures(const vector<TextureData>& textures)
 			TextureType::Type_2D,
 			TextureFormat::Format_RGBA8,
 			TextureUsage::Usage_None);
+
+		texture_cube_ID = tex->GetID();
 	}
 
 	return true;
@@ -226,7 +227,9 @@ bool InitializeShaders(const vector<ShaderData>& shaders)
 		Shader_OpenGL* shader = Shader_OpenGL::CreateShader(
 			shaderName,
 			stages,
-			mainWindow);
+			Render::mainWindow);
+
+		shader_cube_ID = shader->GetID();
 	}
 
 	return true;
@@ -251,10 +254,10 @@ bool CreateGameObjects(const vector<GameObjectData>& gameObjects)
 
 void ResizeProjectionMatrix()
 {
-	Shader_OpenGL* shader = createdOpenGLShaders["shdader_cube"].get();
+	Shader_OpenGL* shader = createdOpenGLShaders[shader_cube_ID].get();
 	if (!shader) return;
 
-	vec2 framebufferSize = mainWindow->GetSize();
+	vec2 framebufferSize = Render::mainWindow->GetSize();
 	float aspect = framebufferSize.x / framebufferSize.y;
 
 	float orthoWidth = 1.0f;

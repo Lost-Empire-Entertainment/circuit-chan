@@ -45,6 +45,9 @@ namespace CircuitGame::GameObjects
 		const string& GetName() const { return name; }
 		void SetName(const string& newName) { name = newName; }
 
+		u32 GetID() const { return ID; }
+		void SetID(u32 newID) { ID = newID; }
+
 		const vec3& GetPos() const { return pos; }
 		void SetPos(const vec3& newPos) { pos = newPos; }
 
@@ -66,6 +69,7 @@ namespace CircuitGame::GameObjects
 		GameObjectType type{};
 
 		string name{};
+		u32 ID{};
 		vec3 pos{};
 		vec3 rot{};
 		vec3 scale{};

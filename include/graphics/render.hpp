@@ -26,8 +26,9 @@ namespace CircuitGame::Graphics
 	class Render
 	{
 	public:
-		static inline unordered_map<string, unique_ptr<Cube>> createdCubes{};
+		static inline unordered_map<u32, unique_ptr<Cube>> createdCubes{};
 		static inline unique_ptr<Camera> createdCamera{};
+		static inline Window* mainWindow{};
 
 		static inline vector<Cube*> runtimeCubes{};
 

@@ -17,6 +17,7 @@
 #include "graphics/opengl/shader_opengl.hpp"
 #include "graphics/opengl/opengl_core.hpp"
 #include "graphics/texture.hpp"
+#include "core/containers.hpp"
 
 #include "gameobjects/cube.hpp"
 #include "graphics/render.hpp"
@@ -43,7 +44,6 @@ using glm::translate;
 static unsigned int VAO{};
 static unsigned int VBO{};
 static unsigned int EBO{};
-static Window* mainWindow{};
 
 static void CreateCube();
 
@@ -63,22 +63,26 @@ namespace CircuitGame::GameObjects
 
 		CreateCube();
 
+		u32 newID = globalID++;
 		unique_ptr<Cube> newCube = make_unique<Cube>();
+		Cube* cubePtr = newCube.get();
+
 		newCube->SetName(name);
+		newCube->SetID(newID);
 		newCube->SetPos(pos);
 		newCube->SetRot(rot);
 		newCube->SetScale(scale);
 		newCube->SetShader(shader);
 		newCube->SetUpdate(true);
 
-		Render::createdCubes[name] = move(newCube);
-		Render::runtimeCubes.push_back(Render::createdCubes[name].get());
+		Render::createdCubes[newID] = move(newCube);
+		Render::runtimeCubes.push_back(cubePtr);
 
 		Logger::Print(
-			"Initialized gameobject '" + name + "'!",
+			"Created new cube '" + name + "'!",
 			"GAMEOBJECT",
 			LogType::LOG_SUCCESS);
-		return Render::createdCubes[name].get();
+		return cubePtr;
 	}
 
 	bool Cube::Render()
