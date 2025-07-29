@@ -5,33 +5,11 @@
 
 #pragma once
 
-#include <unordered_map>
-#include <vector>
-#include <memory>
-#include <string>
-
-#include "gameobjects/cube.hpp"
-#include "graphics/camera.hpp"
-
 namespace CircuitGame::Graphics
 {
-	using std::unordered_map;
-	using std::vector;
-	using std::unique_ptr;
-	using std::string;
-
-	using CircuitGame::GameObjects::Cube;
-	using CircuitGame::Graphics::Camera;
-
 	class Render
 	{
 	public:
-		static inline unordered_map<u32, unique_ptr<Cube>> createdCubes{};
-		static inline unique_ptr<Camera> createdCamera{};
-		static inline Window* mainWindow{};
-
-		static inline vector<Cube*> runtimeCubes{};
-
 		//Initializes the render loop
 		static bool Initialize();
 

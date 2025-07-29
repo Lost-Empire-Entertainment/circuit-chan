@@ -15,9 +15,9 @@ namespace CircuitGame::GameObjects
 	//TODO: ADD SETTER LIMITS TO GAMEOBJECT CLASSES
 	//+ OTHERS WHERE NEEDED TO PREVENT MALFORMED VALUES AND CRASHES
 
-	using std::string;
-
 	using KalaWindow::Graphics::OpenGL::Shader_OpenGL;
+
+	using std::string;
 
 	enum class GameObjectType
 	{
@@ -31,7 +31,6 @@ namespace CircuitGame::GameObjects
 	public:
 		virtual GameObject* Initialize(
 			const string& name,
-			Shader_OpenGL* shader,
 			const vec3& pos = vec3(0),
 			const vec3& rot = vec3(0),
 			const vec3& scale = vec3(1)) = 0;

@@ -5,8 +5,41 @@
 
 #pragma once
 
+#include <unordered_map>
+#include <vector>
+#include <memory>
+
+//kalawindow
+#include "graphics/window.hpp"
+
+#include "gameobjects/cube.hpp"
+#include "graphics/camera.hpp"
+
 namespace CircuitGame::Core
 {
+	using KalaWindow::Graphics::Window;
+
+	using CircuitGame::Graphics::Camera;
+	using CircuitGame::GameObjects::Cube;
+
+	using std::unordered_map;
+	using std::vector;
+	using std::unique_ptr;
+
+	//
+	// INIT STAGE DATA
+	//
+
+	extern unordered_map<u32, unique_ptr<Cube>> createdCubes;
+	extern unique_ptr<Camera> createdCamera;
+	extern Window* mainWindow;
+
+	//
+	// RUNTIME STAGE DATA
+	//
+
+	extern vector<Cube*> runtimeCubes;
+
 	class Game
 	{
 	public:

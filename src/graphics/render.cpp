@@ -23,9 +23,9 @@
 #include "glm/gtc/type_ptr.hpp"
 
 #include "graphics/render.hpp"
-#include "graphics/texture.hpp"
 #include "gameobjects/gameobject.hpp"
 #include "gameobjects/cube.hpp"
+#include "core/gamecore.hpp"
 
 //kalawindow
 using KalaWindow::Graphics::Window;
@@ -42,11 +42,17 @@ using KalaWindow::Graphics::TextureUsage;
 using KalaWindow::Core::Logger;
 using KalaWindow::Core::LogType;
 using KalaWindow::Core::KalaWindowCore;
+using KalaWindow::Core::createdOpenGLTextures;
+using KalaWindow::Core::createdOpenGLShaders;
+using KalaWindow::Core::runtimeOpenGLTextures;
+using KalaWindow::Core::runtimeOpenGLShaders;
 
 using CircuitGame::GameObjects::GameObject;
 using CircuitGame::GameObjects::GameObjectType;
 using CircuitGame::GameObjects::Cube;
-using CircuitGame::Graphics::Render;
+using CircuitGame::Core::createdCubes;
+using CircuitGame::Core::runtimeCubes;
+using CircuitGame::Core::mainWindow;
 
 using glm::ortho;
 using glm::perspective;
@@ -60,8 +66,8 @@ using std::make_unique;
 
 static vec2 lastSize{};
 
-u32 texture_cube_ID{};
-u32 shader_cube_ID{};
+static Texture_OpenGL* texturePtr{};
+static Shader_OpenGL* shaderPtr{};
 
 struct TextureData
 {
@@ -94,9 +100,11 @@ namespace CircuitGame::Graphics
 	{
 		if (!Renderer_OpenGL::Initialize(mainWindow)) return false;
 
+#ifdef _DEBUG
 		glEnable(GL_DEBUG_OUTPUT);
 		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS); //Ensures callbacks run immediately
 		glDebugMessageCallback(DebugCallback, nullptr);
+#endif
 
 		mainWindow->SetRedrawCallback(Redraw);
 
@@ -128,8 +136,8 @@ namespace CircuitGame::Graphics
 		{
 			.name = "cube_1",
 			.type = GameObjectType::cube,
-			.texture = createdOpenGLTextures[texture_cube_ID].get(),
-			.shader = createdOpenGLShaders[shader_cube_ID].get()
+			.texture = texturePtr,
+			.shader = shaderPtr
 		};
 		gameObjects.push_back(cubeData);
 		CreateGameObjects(gameObjects);
@@ -185,15 +193,19 @@ bool InitializeTextures(const vector<TextureData>& textures)
 		string textureName = texture.textureName;
 		string texturePath = texture.texturePath;
 
-		unique_ptr<Texture_OpenGL> tex = make_unique<Texture_OpenGL>();
-		tex->LoadTexture(
+		texturePtr = Texture_OpenGL::LoadTexture(
 			textureName,
 			texturePath,
 			TextureType::Type_2D,
 			TextureFormat::Format_RGBA8,
 			TextureUsage::Usage_None);
 
-		texture_cube_ID = tex->GetID();
+		if (texturePtr == nullptr)
+		{
+			KalaWindowCore::ForceClose(
+				"Texture error",
+				"Failed to create cube texture!");
+		}
 	}
 
 	return true;
@@ -224,12 +236,17 @@ bool InitializeShaders(const vector<ShaderData>& shaders)
 			fragStage
 		};
 
-		Shader_OpenGL* shader = Shader_OpenGL::CreateShader(
+		shaderPtr = Shader_OpenGL::CreateShader(
 			shaderName,
 			stages,
-			Render::mainWindow);
+			mainWindow);
 
-		shader_cube_ID = shader->GetID();
+		if (shaderPtr == nullptr)
+		{
+			KalaWindowCore::ForceClose(
+				"Shader error",
+				"Failed to create cube shader!");
+		}
 	}
 
 	return true;
@@ -242,11 +259,20 @@ bool CreateGameObjects(const vector<GameObjectData>& gameObjects)
 		auto cube = make_unique<Cube>();
 		
 		cube->Initialize(
-			"cube_1", 
-			obj.shader, 
+			"cube_1",
 			vec3(-5.0f, 0.0f, 0.0f));
 
+		if (obj.texture == nullptr)
+		{
+
+		}
+		if (obj.shader == nullptr)
+		{
+
+		}
+
 		cube->SetTexture(obj.texture);
+		cube->SetShader(obj.shader);
 	}
 
 	return true;
@@ -254,10 +280,9 @@ bool CreateGameObjects(const vector<GameObjectData>& gameObjects)
 
 void ResizeProjectionMatrix()
 {
-	Shader_OpenGL* shader = createdOpenGLShaders[shader_cube_ID].get();
-	if (!shader) return;
+	if (!shaderPtr) return;
 
-	vec2 framebufferSize = Render::mainWindow->GetSize();
+	vec2 framebufferSize = mainWindow->GetSize();
 	float aspect = framebufferSize.x / framebufferSize.y;
 
 	float orthoWidth = 1.0f;
@@ -273,7 +298,7 @@ void ResizeProjectionMatrix()
 
 	mat4 model = mat4(1.0f);
 
-	GLuint program = shader->GetProgramID();
+	GLuint program = shaderPtr->GetProgramID();
 	glUseProgram(program);
 
 	//upload projection

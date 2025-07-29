@@ -37,9 +37,12 @@ using KalaWindow::Core::Logger;
 using KalaWindow::Core::LogType;
 using GLVState = KalaWindow::Graphics::OpenGL::VSyncState;
 using KalaWindow::Graphics::OpenGL::Renderer_OpenGL;
+using KalaWindow::Core::createdWindows;
+using KalaWindow::Core::runtimeWindows;
 
 using CircuitGame::Core::Game;
 using CircuitGame::Graphics::Render;
+using CircuitGame::Core::mainWindow;
 
 using std::thread;
 using std::chrono::milliseconds;
@@ -73,6 +76,15 @@ static vec2 lastSize{};
 
 namespace CircuitGame::Core
 {
+	//
+	// DEFINE INIT AND RUNTIME STAGE DATA
+	//
+
+	unordered_map<u32, unique_ptr<Cube>> createdCubes{};
+	unique_ptr<Camera> createdCamera{};
+	Window* mainWindow{};
+	vector<Cube*> runtimeCubes{};
+
 	void Game::Initialize()
 	{
 		KalaCrashHandler::SetShutdownCallback(Shutdown_Crash);
@@ -86,24 +98,18 @@ namespace CircuitGame::Core
 		float width = 800;
 		float height = 600;
 		
-		if (Window::Initialize(
+		mainWindow = Window::Initialize(
 			title,
-			vec2{ width, height }) == nullptr)
+			vec2{ width, height });
+
+		if (mainWindow == nullptr)
 		{
 			KalaWindowCore::ForceClose(
 				"Window error",
 				"Failed to create main window!");
 		}
 
-		if (runtimeWindows.empty())
-		{
-			KalaWindowCore::ForceClose(
-				"Window error",
-				"Failed to get main window!");
-		}
-		if (Render::mainWindow = runtimeWindows.front());
-
-		if (!Input::Initialize(Render::mainWindow)) return;
+		if (!Input::Initialize(mainWindow)) return;
 
 		Logger::Print(
 			"Initializing OpenGL...",
@@ -113,8 +119,8 @@ namespace CircuitGame::Core
 		if (!Render::Initialize()) return;
 		Renderer_OpenGL::SetVSyncState(GLVState::VSYNC_ON);
 
-		Render::mainWindow->SetMinSize(vec2{ 800, 600 });
-		Render::mainWindow->SetMaxSize(vec2{ 3840, 2160 });
+		mainWindow->SetMinSize(vec2{ 800, 600 });
+		mainWindow->SetMaxSize(vec2{ 3840, 2160 });
 
 		stringstream ss{};
 		ss << "\n====================\n"
@@ -133,7 +139,7 @@ namespace CircuitGame::Core
 		isInitialized = true;
 		isRunning = true;
 
-		Render::mainWindow->SetWindowState(WindowState::WINDOW_MAXIMIZE);
+		mainWindow->SetWindowState(WindowState::WINDOW_MAXIMIZE);
 
 		Game::Update();
 	}
@@ -142,7 +148,7 @@ namespace CircuitGame::Core
 	{
 		while (isRunning)
 		{
-			Render::mainWindow->Update();
+			mainWindow->Update();
 
 			if (Input::IsKeyPressed(Key::Num1))
 			{
@@ -178,9 +184,9 @@ namespace CircuitGame::Core
 				if (!isDisplayingTitleData)
 				{
 					string title = "CircuitGame";
-					if (Render::mainWindow->GetTitle() != title)
+					if (mainWindow->GetTitle() != title)
 					{
-						Render::mainWindow->SetTitle(title);
+						mainWindow->SetTitle(title);
 					}
 				}
 
@@ -213,7 +219,7 @@ namespace CircuitGame::Core
 
 			Input::EndFrameUpdate();
 
-			unsigned int sleepTime = Render::mainWindow->IsIdle() ? idleSleep : activeSleep;
+			unsigned int sleepTime = mainWindow->IsIdle() ? idleSleep : activeSleep;
 			SleepFor(sleepTime);
 		}
 	}
@@ -274,7 +280,7 @@ void DisplayTitleData()
 			<< "s] Frames: " << fpsStr << "\n";
 		*/
 
-		vec2 winSize = Render::mainWindow->GetSize();
+		vec2 winSize = mainWindow->GetSize();
 		if (lastSize.x != winSize.x
 			|| lastSize.y != winSize.y)
 		{
@@ -285,7 +291,7 @@ void DisplayTitleData()
 			to_string(static_cast<int>(lastSize.y));
 
 		string title = "CircuitGame [ " + resolution + " ] [ " + fpsStr + " fps ]";
-		Render::mainWindow->SetTitle(title);
+		mainWindow->SetTitle(title);
 
 		frameCount = 0;
 		lastLogTime = now;

@@ -20,15 +20,17 @@
 #include "core/containers.hpp"
 
 #include "gameobjects/cube.hpp"
-#include "graphics/render.hpp"
+#include "core/gamecore.hpp"
 
 using KalaWindow::Graphics::Window;
 using KalaWindow::Core::Logger;
 using KalaWindow::Core::LogType;
 using KalaWindow::Graphics::OpenGL::Shader_OpenGL;
 using KalaWindow::Graphics::Texture;
+using KalaWindow::Core::globalID;
 
-using CircuitGame::Graphics::Render;
+using CircuitGame::Core::createdCubes;
+using CircuitGame::Core::runtimeCubes;
 
 using std::filesystem::path;
 using std::filesystem::current_path;
@@ -51,7 +53,6 @@ namespace CircuitGame::GameObjects
 {
 	GameObject* Cube::Initialize(
 		const string& name,
-		Shader_OpenGL* shader,
 		const vec3& pos,
 		const vec3& rot,
 		const vec3& scale)
@@ -72,11 +73,10 @@ namespace CircuitGame::GameObjects
 		newCube->SetPos(pos);
 		newCube->SetRot(rot);
 		newCube->SetScale(scale);
-		newCube->SetShader(shader);
 		newCube->SetUpdate(true);
 
-		Render::createdCubes[newID] = move(newCube);
-		Render::runtimeCubes.push_back(cubePtr);
+		createdCubes[newID] = move(newCube);
+		runtimeCubes.push_back(cubePtr);
 
 		Logger::Print(
 			"Created new cube '" + name + "'!",

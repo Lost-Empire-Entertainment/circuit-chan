@@ -8,7 +8,6 @@
 #include <string>
 
 //kalawindow
-#include "graphics/opengl/shader_opengl.hpp"
 #include "graphics/opengl/texture_opengl.hpp"
 
 #include "gameobjects/gameobject.hpp"
@@ -18,7 +17,6 @@ namespace CircuitGame::GameObjects
 	using std::string;
 
 	//kalawindow
-	using KalaWindow::Graphics::OpenGL::Shader_OpenGL;
 	using KalaWindow::Graphics::OpenGL::Texture_OpenGL;
 
 	class Cube : public GameObject
@@ -26,7 +24,6 @@ namespace CircuitGame::GameObjects
 	public:
 		virtual GameObject* Initialize(
 			const string& name,
-			Shader_OpenGL* shader,
 			const vec3& pos = vec3(0),
 			const vec3& rot = vec3(0),
 			const vec3& scale = vec3(1)) override;
