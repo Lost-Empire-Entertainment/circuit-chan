@@ -53,11 +53,13 @@ using std::string;
 using std::to_string;
 using std::stringstream;
 
-static inline bool isInitialized = false;
-static inline bool isRunning = false;
+static bool isInitialized = false;
+static bool isRunning = false;
 
-static inline unsigned int activeSleep{};
-static inline unsigned int idleSleep{};
+static unsigned int activeSleep{};
+static unsigned int idleSleep{};
+
+static time_point<steady_clock> lastFrameTime{};
 
 static bool canSleep = true;
 
@@ -223,10 +225,10 @@ void SleepFor(unsigned int ms)
 	milliseconds convertedMS = milliseconds(ms);
 
 	time_point<steady_clock> now = steady_clock::now();
-	dur frameDuration = now - Game::lastFrameTime;
+	dur frameDuration = now - lastFrameTime;
 
 	if (frameDuration < convertedMS) sleep_for(convertedMS - frameDuration);
-	Game::lastFrameTime = steady_clock::now();
+	lastFrameTime = steady_clock::now();
 }
 
 void DisplayTitleData()

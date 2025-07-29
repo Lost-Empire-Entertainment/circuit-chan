@@ -5,18 +5,11 @@
 
 #pragma once
 
-#include <chrono>
-
 namespace CircuitGame::Core
 {
-	using std::chrono::time_point;
-	using std::chrono::steady_clock;
-
 	class Game
 	{
 	public:
-		static inline time_point<steady_clock> lastFrameTime{};
-
 		//Initializes all parts of this program
 		static void Initialize();
 
