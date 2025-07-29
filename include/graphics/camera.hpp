@@ -59,7 +59,7 @@ namespace CircuitGame::Graphics
 		//Called inside resize callback to ensure camera aspect ratio always stays valid
 		void SetAspectRatio(float size)
 		{
-			aspectRatio = clamp(size, 0.001f, 2.0f);
+			aspectRatio = clamp(size, 0.001f, 10.0f);
 		}
 
 		mat4 GetViewMatrix() const;

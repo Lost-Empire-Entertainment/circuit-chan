@@ -156,18 +156,16 @@ namespace CircuitGame::Graphics
 
 	void Render::Update()
 	{
+		if (!mainWindow->IsIdle()) Redraw();
+	}
+
+	void Render::Redraw()
+	{
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f); //dark gray
 		glClear(
 			GL_COLOR_BUFFER_BIT
 			| GL_DEPTH_BUFFER_BIT);
 
-		if (!mainWindow->IsIdle()) Redraw();
-
-		Renderer_OpenGL::SwapOpenGLBuffers(mainWindow);
-	}
-
-	void Render::Redraw()
-	{
 		mat4 projection{};
 		mat4 view{};
 		if (createdCamera != nullptr)
@@ -197,6 +195,8 @@ namespace CircuitGame::Graphics
 				object->Render(view, projection);
 			}
 		}
+
+		Renderer_OpenGL::SwapOpenGLBuffers(mainWindow);
 	}
 
 	void Render::Shutdown()
