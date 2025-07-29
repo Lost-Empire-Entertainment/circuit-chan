@@ -24,7 +24,7 @@ namespace CircuitGame::Graphics
 			float fov,
 			float nearClip = 0.01f,
 			float farClip = 500.0f,
-			float aspectRatio = 1.777777f, //default 16/9 aspect ratio
+			float aspectRatio = 1.777777f, //1.777777f is default 16/9 aspect ratio
 			const vec3& pos = vec3(0),
 			const vec3& rot = vec3(0)) {}; //TODO: DEFINE
 

@@ -22,11 +22,11 @@ namespace CircuitGame::GameObjects
 	class Cube : public GameObject
 	{
 	public:
-		virtual GameObject* Initialize(
+		static Cube* Initialize(
 			const string& name,
 			const vec3& pos = vec3(0),
 			const vec3& rot = vec3(0),
-			const vec3& scale = vec3(1)) override;
+			const vec3& scale = vec3(1));
 
 		const Texture_OpenGL* GetTexture() { return texture; }
 		void SetTexture(Texture_OpenGL* newTexture) { texture = newTexture; }

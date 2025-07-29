@@ -51,14 +51,14 @@ static void CreateCube();
 
 namespace CircuitGame::GameObjects
 {
-	GameObject* Cube::Initialize(
+	Cube* Cube::Initialize(
 		const string& name,
 		const vec3& pos,
 		const vec3& rot,
 		const vec3& scale)
 	{
 		Logger::Print(
-			"Creating cube '" + name + "'.",
+			"Creating gameobject '" + name + "'.",
 			"GAMEOBJECT",
 			LogType::LOG_INFO);
 
@@ -79,7 +79,7 @@ namespace CircuitGame::GameObjects
 		runtimeCubes.push_back(cubePtr);
 
 		Logger::Print(
-			"Created new cube '" + name + "'!",
+			"Created gameobject '" + name + "'!",
 			"GAMEOBJECT",
 			LogType::LOG_SUCCESS);
 		return cubePtr;

@@ -256,19 +256,15 @@ bool CreateGameObjects(const vector<GameObjectData>& gameObjects)
 {
 	for (const auto& obj : gameObjects)
 	{
-		auto cube = make_unique<Cube>();
-		
-		cube->Initialize(
+		Cube* cube = Cube::Initialize(
 			"cube_1",
 			vec3(-5.0f, 0.0f, 0.0f));
 
-		if (obj.texture == nullptr)
+		if (cube == nullptr)
 		{
-
-		}
-		if (obj.shader == nullptr)
-		{
-
+			KalaWindowCore::ForceClose(
+				"GameObject error",
+				"Failed to create cube!");
 		}
 
 		cube->SetTexture(obj.texture);
@@ -280,7 +276,7 @@ bool CreateGameObjects(const vector<GameObjectData>& gameObjects)
 
 void ResizeProjectionMatrix()
 {
-	if (!shaderPtr) return;
+	if (shaderPtr == nullptr) return;
 
 	vec2 framebufferSize = mainWindow->GetSize();
 	float aspect = framebufferSize.x / framebufferSize.y;
