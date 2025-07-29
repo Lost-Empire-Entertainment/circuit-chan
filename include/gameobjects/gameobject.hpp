@@ -50,10 +50,21 @@ namespace CircuitGame::GameObjects
 		const vec3& GetScale() const { return scale; };
 		void SetScale(const vec3& newScale) { scale = newScale; }
 
+		u32 GetVAO() const { return VAO; }
+		void SetVAO(u32 newVAO) { VAO = newVAO; }
+
+		u32 GetVBO() const { return VBO; }
+		void SetVBO(u32 newVBO) { VBO = newVBO; }
+
+		u32 GetEBO() const { return EBO; }
+		void SetEBO(u32 newEBO) { EBO = newEBO; }
+
 		const Shader_OpenGL* GetShader() const { return shader; }
 		void SetShader(Shader_OpenGL* newShader) { shader = newShader; }
 
-		virtual bool Render() = 0;
+		virtual bool Render(
+			const mat4& view,
+			const mat4& projection) = 0;
 
 		virtual ~GameObject() {};
 	private:
@@ -66,6 +77,10 @@ namespace CircuitGame::GameObjects
 		vec3 pos{};
 		vec3 rot{};
 		vec3 scale{};
+
+		u32 VAO{};
+		u32 VBO{};
+		u32 EBO{};
 
 		Shader_OpenGL* shader{};
 	};

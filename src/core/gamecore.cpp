@@ -217,6 +217,8 @@ namespace CircuitGame::Core
 
 			Render::Update();
 
+			createdCamera->UpdateCameraPosition();
+
 			Input::EndFrameUpdate();
 
 			unsigned int sleepTime = mainWindow->IsIdle() ? idleSleep : activeSleep;

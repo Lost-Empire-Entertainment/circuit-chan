@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/quaternion.hpp"
 
 //kalawindow
 #include "graphics/window.hpp"
@@ -31,6 +32,7 @@ using KalaWindow::Core::globalID;
 
 using CircuitGame::Core::createdCubes;
 using CircuitGame::Core::runtimeCubes;
+using CircuitGame::GameObjects::Cube;
 
 using std::filesystem::path;
 using std::filesystem::current_path;
@@ -42,12 +44,12 @@ using std::unique_ptr;
 using std::make_unique;
 using std::vector;
 using glm::translate;
+using glm::radians;
+using glm::quat;
+using glm::mat4_cast;
+using glm::scale;
 
-static unsigned int VAO{};
-static unsigned int VBO{};
-static unsigned int EBO{};
-
-static void CreateCube();
+static void CreateCube(Cube* cube);
 
 namespace CircuitGame::GameObjects
 {
@@ -60,13 +62,13 @@ namespace CircuitGame::GameObjects
 		Logger::Print(
 			"Creating gameobject '" + name + "'.",
 			"GAMEOBJECT",
-			LogType::LOG_INFO);
-
-		CreateCube();
+			LogType::LOG_DEBUG);
 
 		u32 newID = globalID++;
 		unique_ptr<Cube> newCube = make_unique<Cube>();
 		Cube* cubePtr = newCube.get();
+
+		CreateCube(cubePtr);
 
 		newCube->SetName(name);
 		newCube->SetID(newID);
@@ -82,26 +84,17 @@ namespace CircuitGame::GameObjects
 			"Created gameobject '" + name + "'!",
 			"GAMEOBJECT",
 			LogType::LOG_SUCCESS);
+
 		return cubePtr;
 	}
 
-	bool Cube::Render()
+	bool Cube::Render(
+		const mat4& view,
+		const mat4& projection)
 	{
 		if (!CanUpdate()) return false;
 
 		string name = GetName();
-		const Texture_OpenGL* tex = GetTexture();
-
-		if (tex == nullptr)
-		{
-			Logger::Print(
-				"Cannot render gameobject '" + name + "' because its texture is nullptr!",
-				"GAMEOBJECT",
-				LogType::LOG_ERROR,
-				2);
-
-			return false;
-		}
 		
 		const Shader_OpenGL* shader = GetShader();
 		if (shader == nullptr)
@@ -115,47 +108,57 @@ namespace CircuitGame::GameObjects
 			return false;
 		}
 
-		vec3 pos = GetPos();
-		string posString = 
-			to_string(pos.x) + ", " +
-			to_string(pos.y) + ", " +
-			to_string(pos.z);
-		Logger::Print("Position: " + posString);
+		if (!shader->Bind())
+		{
+			Logger::Print(
+				"Failed to bind shader '" + shader->GetName() + "'!",
+				"GAMEOBJECT_CUBE",
+				LogType::LOG_ERROR,
+				2);
 
-		if (!shader->Bind()) return false;
-		
-		unsigned int id = tex->GetID();
+			return false;
+		}
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, id);
+		u32 programID = shader->GetProgramID();
+
+		shader->SetMat4(programID, "projection", projection);
+		shader->SetMat4(programID, "view", view);
 
 		mat4 model = mat4(1.0f);
-		model = translate(model, vec3(0.0f, 1.0f, 0.0f));
+		model = translate(model, GetPos());
+		quat newRot = quat(radians(GetRot()));
+		model *= mat4_cast(newRot);
+		model = glm::scale(model, vec3(1));
 
-		shader->SetMat4(id, "model", model);
+		shader->SetMat4(programID, "model", model);
 
-		glBindVertexArray(VAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		u32 vao = GetVAO();
+		glBindVertexArray(vao);
+		glDrawArrays(GL_LINES, 0, 24);
 
 		return true;
 	}
 
 	Cube::~Cube()
 	{
-		if (VAO)
+		u32 vao = GetVAO();
+		u32 vbo = GetVBO();
+		u32 ebo = GetEBO();
+
+		if (vao != 0)
 		{
-			glDeleteVertexArrays(1, &VAO);
-			VAO = 0;
+			glDeleteVertexArrays(1, &vao);
+			SetVAO(0);
 		}
-		if (VBO)
+		if (vbo != 0)
 		{
-			glDeleteBuffers(1, &VBO);
-			VBO = 0;
+			glDeleteBuffers(1, &vbo);
+			SetVBO(0);
 		}
-		if (EBO)
+		if (ebo != 0)
 		{
-			glDeleteBuffers(1, &EBO);
-			EBO = 0;
+			glDeleteBuffers(1, &ebo);
+			SetEBO(0);
 		}
 
 		Logger::Print(
@@ -165,60 +168,58 @@ namespace CircuitGame::GameObjects
 	}
 }
 
-void CreateCube()
+void CreateCube(Cube* cube)
 {
 	float vertices[] =
 	{
-		//positions          //normals           //texture coords
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f,  1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f,  0.0f,
+		//edges of the cube
+		-0.5f, -0.5f, -0.5f,
+		 0.5f, -0.5f, -0.5f,
 
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
+		 0.5f, -0.5f, -0.5f,
+		 0.5f,  0.5f, -0.5f,
 
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-		-0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-		-0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+		 0.5f,  0.5f, -0.5f,
+		-0.5f,  0.5f, -0.5f,
 
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+		-0.5f,  0.5f, -0.5f,
+		-0.5f, -0.5f, -0.5f,
 
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  1.0f,  0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f,  1.0f,
+		-0.5f, -0.5f,  0.5f,
+		 0.5f, -0.5f,  0.5f,
 
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f,
-		 0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  1.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
-		 0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  1.0f,  0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  1.0f
+		 0.5f, -0.5f,  0.5f,
+		 0.5f,  0.5f,  0.5f,
+
+		 0.5f,  0.5f,  0.5f,
+		-0.5f,  0.5f,  0.5f,
+
+		-0.5f,  0.5f,  0.5f,
+		-0.5f, -0.5f,  0.5f,
+
+		//connecting edges
+		-0.5f, -0.5f, -0.5f,
+		-0.5f, -0.5f,  0.5f,
+
+		 0.5f, -0.5f, -0.5f,
+		 0.5f, -0.5f,  0.5f,
+
+		 0.5f,  0.5f, -0.5f,
+		 0.5f,  0.5f,  0.5f,
+
+		-0.5f,  0.5f, -0.5f,
+		-0.5f,  0.5f,  0.5f,
 	};
 
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
+	u32 vao{};
+	u32 vbo{};
 
-	glBindVertexArray(VAO);
+	glGenVertexArrays(1, &vao);
+	glGenBuffers(1, &vbo);
 
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBindVertexArray(vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(
 		GL_ARRAY_BUFFER,
 		sizeof(vertices),
@@ -231,29 +232,13 @@ void CreateCube()
 		3,
 		GL_FLOAT,
 		GL_FALSE,
-		8 * sizeof(float),
+		3 * sizeof(float),
 		(void*)0);
+
 	glEnableVertexAttribArray(0);
-
-	//normal
-	glVertexAttribPointer(
-		1,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		8 * sizeof(float),
-		(void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-
-	//texture
-	glVertexAttribPointer(
-		2,
-		2,
-		GL_FLOAT,
-		GL_FALSE,
-		8 * sizeof(float),
-		(void*)(6 * sizeof(float)));
-
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
+
+	cube->SetVAO(vao);
+	cube->SetVBO(vbo);
 }

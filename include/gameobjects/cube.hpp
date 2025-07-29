@@ -31,7 +31,9 @@ namespace CircuitGame::GameObjects
 		const Texture_OpenGL* GetTexture() { return texture; }
 		void SetTexture(Texture_OpenGL* newTexture) { texture = newTexture; }
 
-		bool Render() override;
+		bool Render(
+			const mat4& view,
+			const mat4& projection) override;
 		~Cube() override;
 	private:
 		Texture_OpenGL* texture{};

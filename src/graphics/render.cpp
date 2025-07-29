@@ -53,10 +53,12 @@ using CircuitGame::GameObjects::Cube;
 using CircuitGame::Core::createdCubes;
 using CircuitGame::Core::runtimeCubes;
 using CircuitGame::Core::mainWindow;
+using CircuitGame::Core::createdCamera;
 
 using glm::ortho;
 using glm::perspective;
 using glm::value_ptr;
+using glm::radians;
 using std::string;
 using std::vector;
 using std::filesystem::path;
@@ -124,8 +126,8 @@ namespace CircuitGame::Graphics
 		ShaderData shaderData =
 		{
 			.shaderName = "shader_cube",
-			.vertPath = path(current_path() / "files" / "shaders" / "cube.vert").string(),
-			.fragPath = path(current_path() / "files" / "shaders" / "cube.frag").string()
+			.vertPath = path(current_path() / "files" / "shaders" / "basic.vert").string(),
+			.fragPath = path(current_path() / "files" / "shaders" / "basic.frag").string()
 		};
 		shaders.push_back(shaderData);
 		if (!InitializeShaders(shaders)) return false;
@@ -142,18 +144,42 @@ namespace CircuitGame::Graphics
 		gameObjects.push_back(cubeData);
 		CreateGameObjects(gameObjects);
 
+		if (Camera::CreateCamera(mainWindow) == nullptr)
+		{
+			KalaWindowCore::ForceClose(
+				"Camera error",
+				"Failed to create camera!");
+		}
+
 		return true;
 	}
 
 	void Render::Update()
 	{
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f); //dark gray
+		glClear(
+			GL_COLOR_BUFFER_BIT
+			| GL_DEPTH_BUFFER_BIT);
+
 		if (!mainWindow->IsIdle()) Redraw();
+
+		Renderer_OpenGL::SwapOpenGLBuffers(mainWindow);
 	}
 
 	void Render::Redraw()
 	{
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f); //dark gray
-		glClear(GL_COLOR_BUFFER_BIT);
+		mat4 projection{};
+		mat4 view{};
+		if (createdCamera != nullptr)
+		{
+			projection = perspective(
+				radians(createdCamera->GetFOV()),
+				createdCamera->GetAspectRatio(),
+				createdCamera->GetNearClip(),
+				createdCamera->GetFarClip());
+
+			view = createdCamera->GetViewMatrix();
+		}
 
 		if (runtimeCubes.size() > 0)
 		{
@@ -168,11 +194,9 @@ namespace CircuitGame::Graphics
 
 					continue;
 				}
-				object->Render();
+				object->Render(view, projection);
 			}
 		}
-
-		Renderer_OpenGL::SwapOpenGLBuffers(mainWindow);
 	}
 
 	void Render::Shutdown()
@@ -258,7 +282,7 @@ bool CreateGameObjects(const vector<GameObjectData>& gameObjects)
 	{
 		Cube* cube = Cube::Initialize(
 			"cube_1",
-			vec3(-5.0f, 0.0f, 0.0f));
+			vec3(0.0f, 0.0f, -5.0f));
 
 		if (cube == nullptr)
 		{
@@ -276,60 +300,66 @@ bool CreateGameObjects(const vector<GameObjectData>& gameObjects)
 
 void ResizeProjectionMatrix()
 {
-	if (shaderPtr == nullptr) return;
-
 	vec2 framebufferSize = mainWindow->GetSize();
 	float aspect = framebufferSize.x / framebufferSize.y;
 
-	float orthoWidth = 1.0f;
-	float orthoHeight = 1.0f;
-
-	if (aspect >= 1.0f) orthoWidth = aspect;
-	else orthoHeight = 1.0f / aspect;
-
-	mat4 proj = ortho(
-		-orthoWidth, orthoWidth,
-		-orthoHeight, orthoHeight,
-		-1.0f, 1.0f);
-
-	mat4 model = mat4(1.0f);
-
-	GLuint program = shaderPtr->GetProgramID();
-	glUseProgram(program);
-
-	//upload projection
-
-	int projLoc = glGetUniformLocation(program, "uProjection");
-
-	//Logger::Print(
-	//	  "uProjection uniform location: " + to_string(projLoc),
-	//	  "Render",
-	//	  LogType::LOG_DEBUG);
-
-	if (projLoc >= 0)
+	if (createdCamera != nullptr)
 	{
-		glUniformMatrix4fv(
-			projLoc,
-			1,
-			GL_FALSE,
-			value_ptr(proj));
+		createdCamera->SetAspectRatio(aspect);
 	}
 
-	//upload model
-
-	int modelLoc = glGetUniformLocation(program, "uModel");
-	
-	//Logger::Print(
-	//	  "uModel uniform location: " + to_string(modelLoc),
-	//	  "Render",
-	//	  LogType::LOG_DEBUG);
-
-	if (modelLoc >= 0)
+	if (shaderPtr != nullptr)
 	{
-		glUniformMatrix4fv(
-			modelLoc,
-			1,
-			GL_FALSE,
-			value_ptr(model));
+		float orthoWidth = 1.0f;
+		float orthoHeight = 1.0f;
+
+		if (aspect >= 1.0f) orthoWidth = aspect;
+		else orthoHeight = 1.0f / aspect;
+
+		mat4 proj = ortho(
+			-orthoWidth, orthoWidth,
+			-orthoHeight, orthoHeight,
+			-1.0f, 1.0f);
+
+		mat4 model = mat4(1.0f);
+
+		GLuint program = shaderPtr->GetProgramID();
+		glUseProgram(program);
+
+		//upload projection
+
+		int projLoc = glGetUniformLocation(program, "uProjection");
+
+		//Logger::Print(
+		//	  "uProjection uniform location: " + to_string(projLoc),
+		//	  "Render",
+		//	  LogType::LOG_DEBUG);
+
+		if (projLoc >= 0)
+		{
+			glUniformMatrix4fv(
+				projLoc,
+				1,
+				GL_FALSE,
+				value_ptr(proj));
+		}
+
+		//upload model
+
+		int modelLoc = glGetUniformLocation(program, "uModel");
+
+		//Logger::Print(
+		//	  "uModel uniform location: " + to_string(modelLoc),
+		//	  "Render",
+		//	  LogType::LOG_DEBUG);
+
+		if (modelLoc >= 0)
+		{
+			glUniformMatrix4fv(
+				modelLoc,
+				1,
+				GL_FALSE,
+				value_ptr(model));
+		}
 	}
 }

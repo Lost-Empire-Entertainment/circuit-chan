@@ -21,12 +21,21 @@ namespace CircuitGame::Graphics
 	{
 	public:
 		static Camera* CreateCamera(
-			float fov,
+			Window* window,
+			float fov = 90.0f,
 			float nearClip = 0.01f,
 			float farClip = 500.0f,
-			float aspectRatio = 1.777777f, //1.777777f is default 16/9 aspect ratio
 			const vec3& pos = vec3(0),
-			const vec3& rot = vec3(0)) {}; //TODO: DEFINE
+			const vec3& rot = vec3(0));
+
+		bool CanMove() const { return canMove; };
+		void SetMoveState(bool newMove) { canMove = newMove; }
+
+		//Handle camera movement based off of keyboard keys
+		void UpdateCameraPosition();
+
+		//Handle camera rotation based off of mouse movement
+		void UpdateCameraRotation(vec2 delta);
 
 		float GetFOV() const { return fov; }
 		void SetFOV(float newFOV)
@@ -47,9 +56,13 @@ namespace CircuitGame::Graphics
 		}
 
 		float GetAspectRatio() const { return aspectRatio; }
-		//Should be called inside redrawCallback, that way aspect ratio is only updated if window size actually changes
-		//TODO: ADD ASPECT RATIO UPDATE TO RESIZE CALLBACK
-		void SetAspectRatio(Window* window) {}; //TODO: DEFINE
+		//Called inside resize callback to ensure camera aspect ratio always stays valid
+		void SetAspectRatio(float size)
+		{
+			aspectRatio = clamp(size, 0.001f, 2.0f);
+		}
+
+		mat4 GetViewMatrix() const;
 
 		const vec3& GetUp() const { return up; }
 		const vec3& GetFront() const { return front; }
@@ -101,15 +114,17 @@ namespace CircuitGame::Graphics
 			};
 		}
 
-		~Camera() {}; //TODO: DEFINE
+		~Camera();
 	private:
+		bool canMove = false;
+
 		float fov = 90.0f;
 		float nearClip = 0.01f;
 		float farClip = 500.0f;
 		float aspectRatio = 1.777777f; //For 16/9 aspect ratio
 
-		vec3 up = vec3(0, 1, 0);
-		vec3 front = vec3(1, 0, 0);
+		vec3 up = vec3(0.0f, 1.0f, 0.0f);
+		vec3 front = vec3(0.0f, 0.0f, -1.0f);
 
 		vec3 pos = vec3(0);
 		vec3 rot = vec3(0);
