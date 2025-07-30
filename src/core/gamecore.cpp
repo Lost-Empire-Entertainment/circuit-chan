@@ -21,6 +21,7 @@
 #include "core/containers.hpp"
 
 #include "core/gamecore.hpp"
+#include "core/playerinput.hpp"
 #include "graphics/render.hpp"
 
 //kalacrashhandler
@@ -56,23 +57,19 @@ using std::make_unique;
 using std::string;
 using std::to_string;
 using std::stringstream;
+using std::clamp;
 
 static bool isInitialized = false;
 static bool isRunning = false;
 
-static unsigned int activeSleep{};
-static unsigned int idleSleep{};
-
-static time_point<steady_clock> lastFrameTime{};
-
-static bool canSleep = true;
-
 static bool isDisplayingTitleData = false;
 static void DisplayTitleData();
 
-static void SleepFor(unsigned int ms);
+static void UpdateDeltaTime();
 
 static vec2 lastSize{};
+
+static f64 accumulator = 0.0;
 
 namespace CircuitGame::Core
 {
@@ -95,8 +92,8 @@ namespace CircuitGame::Core
 		KalaWindowCore::SetUserShutdownFunction(Render::Shutdown);
 
 		string title = "CircuitGame";
-		float width = 800;
-		float height = 600;
+		f32 width = 800;
+		f32 height = 600;
 		
 		mainWindow = Window::Initialize(
 			title,
@@ -127,8 +124,7 @@ namespace CircuitGame::Core
 			<< "1: set vsync on\n"
 			<< "2: set vsync off\n"
 			<< "3: set vsync to triple buffering (vulkan only)\n"
-			<< "4: toggle sleep\n"
-			<< "5: toggle fps and resolution in title\n"
+			<< "4: toggle fps and resolution in title\n"
 			<< "====================";
 
 		Logger::Print(
@@ -148,6 +144,25 @@ namespace CircuitGame::Core
 	{
 		while (isRunning)
 		{
+			UpdateDeltaTime();
+			PlayerInput::HandleInput();
+
+			/*
+			* 
+			* //Physics should run on its own thread to not slow down the render thread!
+			* 
+			* i32 maxSteps = 5;
+			* i32 steps = 0;
+			* 
+			while (accumulator >= GetFixedDelta()
+				   && steps < maxSteps)
+			{
+				//<<<< physics logic here
+				accumulator -= GetFixedDelta();
+				steps++;
+			}
+			*/
+
 			mainWindow->Update();
 
 			if (Input::IsKeyPressed(Key::Num1))
@@ -177,7 +192,7 @@ namespace CircuitGame::Core
 					2);
 			}
 
-			if (Input::IsKeyPressed(Key::Num5))
+			if (Input::IsKeyPressed(Key::Num4))
 			{
 				isDisplayingTitleData = !isDisplayingTitleData;
 
@@ -201,28 +216,9 @@ namespace CircuitGame::Core
 			}
 			DisplayTitleData();
 
-			if (Input::IsKeyPressed(Key::Num4))
-			{
-				canSleep = !canSleep;
-
-				string newSleepState = canSleep
-					? "Enabled 'canSleep'"
-					: "Disabled 'canSleep'";
-
-				Logger::Print(
-					newSleepState,
-					"TEST_PROJECT",
-					LogType::LOG_DEBUG);
-			}
-
 			Render::Update();
 
-			createdCamera->UpdateCameraPosition();
-
 			Input::EndFrameUpdate();
-
-			unsigned int sleepTime = mainWindow->IsIdle() ? idleSleep : activeSleep;
-			SleepFor(sleepTime);
 		}
 	}
 
@@ -236,24 +232,24 @@ namespace CircuitGame::Core
 	}
 }
 
-void SleepFor(unsigned int ms)
+void UpdateDeltaTime()
 {
-	if (!canSleep) return;
+	auto now = steady_clock::now();
+	static time_point<steady_clock> lastFrameTime = now;
 
-	milliseconds convertedMS = milliseconds(ms);
+	duration<f64> delta = now - lastFrameTime;
+	lastFrameTime = now;
 
-	time_point<steady_clock> now = steady_clock::now();
-	dur frameDuration = now - lastFrameTime;
+	f64 deltaTime = clamp(delta.count(), 0.0, 0.1);
 
-	if (frameDuration < convertedMS) sleep_for(convertedMS - frameDuration);
-	lastFrameTime = steady_clock::now();
+	Game::SetDeltaTime(deltaTime);
 }
 
 void DisplayTitleData()
 {
 	if (!isDisplayingTitleData) return;
 
-	static int frameCount = 0;
+	static u32 frameCount = 0;
 
 	static auto startTime = steady_clock::now();
 	static auto lastLogTime = startTime;
@@ -261,13 +257,13 @@ void DisplayTitleData()
 	frameCount++;
 
 	auto now = steady_clock::now();
-	duration<double> totalElapsed = now - startTime;
-	duration<double> logElapsed = now - lastLogTime;
+	duration<f64> totalElapsed = now - startTime;
+	duration<f64> logElapsed = now - lastLogTime;
 
 	if (logElapsed.count() >= 0.1)
 	{
-		double seconds = logElapsed.count();
-		double fps = frameCount / seconds;  // use exact duration
+		f64 seconds = logElapsed.count();
+		f64 fps = frameCount / seconds;  // use exact duration
 
 		char buffer[32];
 		snprintf(buffer, sizeof(buffer), "%.8f", fps);

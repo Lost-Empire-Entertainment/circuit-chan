@@ -46,10 +46,21 @@ namespace CircuitGame::Core
 		//Initializes all parts of this program
 		static void Initialize();
 
+		//Returns the variable frame delta (seconds) used for rendering and time-based updates.
+		static f64 GetDeltaTime() { return deltaTime; }
+		static void SetDeltaTime(f64 newDeltaTime) { deltaTime = newDeltaTime; }
+
+		//Returns the fixed timestep (seconds) used for physics updates.
+		static f64 GetFixedDelta() { return fixedDelta; }
+		static void SetFixedDelta(f64 newFixedDelta) { fixedDelta = newFixedDelta; }
+
 		//The core program uodate loop
 		static void Update();
 
 		//Fully shuts down this program, used when a crash condition is detected
 		static void Shutdown_Crash();
+	private:
+		static inline f64 deltaTime{};
+		static inline f64 fixedDelta = 1.0 / 60.0;
 	};
 }

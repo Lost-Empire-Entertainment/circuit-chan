@@ -22,44 +22,48 @@ namespace CircuitGame::Graphics
 	public:
 		static Camera* CreateCamera(
 			Window* window,
-			float fov = 90.0f,
-			float nearClip = 0.01f,
-			float farClip = 500.0f,
+			f32 fov = 90.0f,
+			f32 nearClip = 0.01f,
+			f32 farClip = 500.0f,
+			f32 speed = 25.0f,
 			const vec3& pos = vec3(0),
 			const vec3& rot = vec3(0));
 
 		bool CanMove() const { return canMove; };
 		void SetMoveState(bool newMove) { canMove = newMove; }
 
-		//Handle camera movement based off of keyboard keys
-		void UpdateCameraPosition();
-
 		//Handle camera rotation based off of mouse movement
 		void UpdateCameraRotation(vec2 delta);
 
-		float GetFOV() const { return fov; }
-		void SetFOV(float newFOV)
+		f32 GetFOV() const { return fov; }
+		void SetFOV(f32 newFOV)
 		{
 			fov = clamp(newFOV, 70.0f, 110.0f);
 		}
 
-		float GetNearClip() const { return nearClip; }
-		void SetNearClip(float newNearClip)
+		f32 GetNearClip() const { return nearClip; }
+		void SetNearClip(f32 newNearClip)
 		{
 			nearClip = clamp(newNearClip, 0.001f, farClip - 0.1f);
 		}
 
-		float GetFarClip() const { return farClip; }
-		void SetFarClip(float newFarClip)
+		f32 GetFarClip() const { return farClip; }
+		void SetFarClip(f32 newFarClip)
 		{
 			farClip = clamp(newFarClip, nearClip + 0.1f, 1000.0f);
 		}
 
-		float GetAspectRatio() const { return aspectRatio; }
+		f32 GetAspectRatio() const { return aspectRatio; }
 		//Called inside resize callback to ensure camera aspect ratio always stays valid
-		void SetAspectRatio(float size)
+		void SetAspectRatio(f32 size)
 		{
 			aspectRatio = clamp(size, 0.001f, 10.0f);
+		}
+
+		f32 GetSpeed() const { return speed; }
+		void SetSpeed(f32 newSpeed)
+		{
+			speed = clamp(newSpeed, 0.1f, 10.0f);
 		}
 
 		mat4 GetViewMatrix() const;
@@ -82,7 +86,7 @@ namespace CircuitGame::Graphics
 		//Safely clamps within allowed bounds
 		void SetRot(const vec3& newRot)
 		{
-			auto CorrectRot = [](float angle)
+			auto CorrectRot = [](f32 angle)
 				{
 					angle = fmodf(angle, 360.0f);
 					if (angle < 0.0f) angle += 360.0f;
@@ -99,7 +103,7 @@ namespace CircuitGame::Graphics
 		//Safely wraps within allowed bounds
 		void AddRot(const vec3& deltaRot)
 		{
-			auto WrapAngle = [](float angle)
+			auto WrapAngle = [](f32 angle)
 				{
 					angle = fmodf(angle, 360.0f);
 					if (angle < 0.0f) angle += 360.0f;
@@ -118,10 +122,11 @@ namespace CircuitGame::Graphics
 	private:
 		bool canMove = false;
 
-		float fov = 90.0f;
-		float nearClip = 0.01f;
-		float farClip = 500.0f;
-		float aspectRatio = 1.777777f; //For 16/9 aspect ratio
+		f32 fov = 90.0f;
+		f32 nearClip = 0.01f;
+		f32 farClip = 500.0f;
+		f32 aspectRatio = 1.777777f; //For 16/9 aspect ratio
+		f32 speed = 1.0f;
 
 		vec3 up = vec3(0.0f, 1.0f, 0.0f);
 		vec3 front = vec3(0.0f, 0.0f, -1.0f);

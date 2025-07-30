@@ -170,7 +170,7 @@ namespace CircuitGame::GameObjects
 
 void CreateCube(Cube* cube)
 {
-	float vertices[] =
+	f32 vertices[] =
 	{
 		//edges of the cube
 		-0.5f, -0.5f, -0.5f,
@@ -232,7 +232,7 @@ void CreateCube(Cube* cube)
 		3,
 		GL_FLOAT,
 		GL_FALSE,
-		3 * sizeof(float),
+		3 * sizeof(f32),
 		(void*)0);
 
 	glEnableVertexAttribArray(0);

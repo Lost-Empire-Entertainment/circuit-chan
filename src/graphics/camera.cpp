@@ -9,7 +9,6 @@
 
 //kalawindow
 #include "core/log.hpp"
-#include "core/input.hpp"
 
 #include "graphics/camera.hpp"
 #include "core/gamecore.hpp"
@@ -17,8 +16,6 @@
 //kalawindow
 using KalaWindow::Core::Logger;
 using KalaWindow::Core::LogType;
-using KalaWindow::Core::Input;
-using KalaWindow::Core::Key;
 
 using CircuitGame::Core::createdCamera;
 
@@ -30,9 +27,10 @@ namespace CircuitGame::Graphics
 {
 	Camera* Camera::CreateCamera(
 		Window* window,
-		float fov,
-		float nearClip,
-		float farClip,
+		f32 fov,
+		f32 nearClip,
+		f32 farClip,
+		f32 speed,
 		const vec3& pos,
 		const vec3& rot)
 	{
@@ -61,7 +59,7 @@ namespace CircuitGame::Graphics
 		cameraPtr->SetFarClip(farClip);
 
 		vec2 size = window->GetSize();
-		float aspectRatio = size.x / size.y;
+		f32 aspectRatio = size.x / size.y;
 		cameraPtr->SetAspectRatio(aspectRatio);
 
 		cameraPtr->SetPos(pos);
@@ -73,35 +71,6 @@ namespace CircuitGame::Graphics
 			LogType::LOG_SUCCESS);
 
 		return cameraPtr;
-	}
-
-	void Camera::UpdateCameraPosition()
-	{
-		if (Input::IsKeyDown(Key::Q))
-		{
-			pos.y -= 0.005f;
-		}
-		if (Input::IsKeyDown(Key::E))
-		{
-			pos.y += 0.005f;
-		}
-
-		if (Input::IsKeyDown(Key::W))
-		{
-			pos.z -= 0.005f;
-		}
-		if (Input::IsKeyDown(Key::S))
-		{
-			pos.z += 0.005f;
-		}
-		if (Input::IsKeyDown(Key::A))
-		{
-			pos.x -= 0.005f;
-		}
-		if (Input::IsKeyDown(Key::D))
-		{
-			pos.x += 0.005f;
-		}
 	}
 
 	void Camera::UpdateCameraRotation(vec2 delta)

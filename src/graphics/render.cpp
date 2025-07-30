@@ -301,7 +301,7 @@ bool CreateGameObjects(const vector<GameObjectData>& gameObjects)
 void ResizeProjectionMatrix()
 {
 	vec2 framebufferSize = mainWindow->GetSize();
-	float aspect = framebufferSize.x / framebufferSize.y;
+	f32 aspect = framebufferSize.x / framebufferSize.y;
 
 	if (createdCamera != nullptr)
 	{
@@ -310,8 +310,8 @@ void ResizeProjectionMatrix()
 
 	if (shaderPtr != nullptr)
 	{
-		float orthoWidth = 1.0f;
-		float orthoHeight = 1.0f;
+		f32 orthoWidth = 1.0f;
+		f32 orthoHeight = 1.0f;
 
 		if (aspect >= 1.0f) orthoWidth = aspect;
 		else orthoHeight = 1.0f / aspect;
@@ -328,7 +328,7 @@ void ResizeProjectionMatrix()
 
 		//upload projection
 
-		int projLoc = glGetUniformLocation(program, "uProjection");
+		u32 projLoc = glGetUniformLocation(program, "uProjection");
 
 		//Logger::Print(
 		//	  "uProjection uniform location: " + to_string(projLoc),
@@ -346,7 +346,7 @@ void ResizeProjectionMatrix()
 
 		//upload model
 
-		int modelLoc = glGetUniformLocation(program, "uModel");
+		u32 modelLoc = glGetUniformLocation(program, "uModel");
 
 		//Logger::Print(
 		//	  "uModel uniform location: " + to_string(modelLoc),
