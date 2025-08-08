@@ -68,7 +68,7 @@
   - Must be placed directly above/below an existing wire or layer socket
 
 - **Repeater**  
-  Inputs = 1 (minimum)  
+  Inputs = 1
   Outputs = 1  
   - Resets the **next wire** to full 15 units of power
 
@@ -76,7 +76,7 @@
   Inputs = 1  
   Outputs = 1  
   - Accepts any power ≥ 1 unit  
-  - ON/OFF selects whether power passes  
+  - Manual or state block state selects whether power passes  
   - Does not amplify signal
 
 - **Split Switch**  
@@ -84,14 +84,15 @@
   Outputs = 2 (one active at a time)  
   - Accepts any power ≥ 1 unit  
   - **Requires both outputs to be connected** to function  
-  - ON/OFF selects which output is active  
+  - Manual or state block state selects which output is active  
   - Does not amplify signal
 
 - **Delay**  
   Inputs = 1  
   Outputs = 1  
   - Accepts any power ≥ 1 unit  
-  - Modes = **0.5s**, **1s**, **2s**  
+  - Modes = **0.5s**, **1s**
+  - Manual or state block state toggles modes
   - On rising edge: waits selected delay, outputs a single pulse (one tick); cancels if input drops before completion
 
 - **Inverter**  
@@ -103,20 +104,21 @@
 
 ### State Blocks
 - **Activator**  
-  Inputs = 1 (power)  
-  Control Link = 1 (to adjacent **allowed target**)  
+  Inputs = 1 (power)
+  Control In = 1 (user toggleable button that switches between normal and reverse mode) 
+  Control Out = 1 (to adjacent **allowed target**)  
   - Accepts any power ≥ 1 unit  
   - May attach on **any side** of the target (attachment sends **state only**)  
   - Sets the target’s ON/OFF condition to mirror the Activator’s condition  
   - **Normal mode:** powered = ON, unpowered = OFF  
   - **Reverse mode:** powered = OFF, unpowered = ON  
-  - Requires continuous power to maintain its condition  
-  - Control link never carries electrical power
+  - Requires continuous power to maintain its condition
 
 - **Memory**  
-  Inputs = 1 (state) — must come from an **Activator**  
+  Inputs = 1 (power)
+  Control In (state) — must come from an **Activator**  
   Control Out = 1 (to adjacent **allowed target**, optional)  
   - May attach on **any side** of both its input Activator and its output target (attachment sends **state only**)  
-  - Starts **OFF**; toggles ON/OFF when the input Activator asserts a state change  
+  - Starts **OFF**; toggles ON/OFF when it has power and the input Activator asserts a state change  
   - Holds state **without power**  
   - Output is optional; Memory functions even if nothing is attached
