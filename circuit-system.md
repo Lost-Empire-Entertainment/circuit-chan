@@ -13,15 +13,15 @@
 
 - **Power Block Requirement:** A power block needs a powered input to send power through its outputs.
 
-- **State Signals:** State travels via **attachment** (physical touch), never through power I/O.  
+- **State Signals:** State travels via **attachment** (physical touch) on **any side** of the target.  
   State signals never carry power.
 
 - **State Block Rules:**  
   - State Blocks = **Activator**, **Memory**  
   - Allowed targets for state = **Power Switch**, **Split Switch**, **Repeater**, **Activator**, **Delay**, **Memory**  
-  - Same-type ban: **Activator→Activator ❌**, **Memory→Memory ❌** (but Activator→Memory ✅, Memory→Activator ✅)  
-  - No state is sent if the state block is attached on a target’s **power input or power output** face  
-  - **Pre-placed blocks are unaffected** by state signals  
+  - Same-type ban: State block does not affect other state block of the same type that is attached to it
+  - **Memory** accepts state input **only** from an **Activator**  
+  - Pre-placed blocks are **unaffected** by state signals  
   - State blocks have **no power outputs** and do **not** pass power through themselves
 
 - **Placement:** All player-placed blocks must sit on solid ground (floor or another block).  
@@ -58,7 +58,7 @@
 - **Wire**  
   Inputs = 1  
   Outputs = 1  
-  - Rotatable **straight** or **corner** piece (no T pieces)  
+  - Rotatable **straight** or **corner** piece (no T pieces)
 
 - **Layer Socket**  
   Inputs = 1 (from existing wire/layer socket)  
@@ -99,29 +99,24 @@
   Outputs = 1 (power)  
   - Accepts any power ≥ 1 unit  
   - Reverses ON/OFF condition of its output relative to its input  
-  - Does not store state, only transforms the signal in real-time
-
----
+  - Does not store state; transforms signal in real time
 
 ### State Blocks
 - **Activator**  
   Inputs = 1 (power)  
   Control Link = 1 (to adjacent **allowed target**)  
   - Accepts any power ≥ 1 unit  
-  - Must be attached on a **non-power side** of the target  
+  - May attach on **any side** of the target (attachment sends **state only**)  
   - Sets the target’s ON/OFF condition to mirror the Activator’s condition  
   - **Normal mode:** powered = ON, unpowered = OFF  
   - **Reverse mode:** powered = OFF, unpowered = ON  
   - Requires continuous power to maintain its condition  
-  - Control link sends **state only** (no power)
+  - Control link never carries electrical power
 
 - **Memory**  
-  Type = State Block  
   Inputs = 1 (state) — must come from an **Activator**  
   Control Out = 1 (to adjacent **allowed target**, optional)  
-  - Must be attached on a **non-power side** of both input and output connections  
-  - Only changes state when its input Activator asserts a state change  
-  - Output connection is optional — works even if nothing is attached  
-  - Starts **OFF**; toggles ON/OFF when triggered  
+  - May attach on **any side** of both its input Activator and its output target (attachment sends **state only**)  
+  - Starts **OFF**; toggles ON/OFF when the input Activator asserts a state change  
   - Holds state **without power**  
-  - Control out sends **state only** (no power)
+  - Output is optional; Memory functions even if nothing is attached
