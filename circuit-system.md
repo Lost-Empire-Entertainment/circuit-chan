@@ -59,14 +59,14 @@ Blocks are destroyed individually if the ground beneath them is not solid.
   Outputs = 1  
   - Resets output to full 15 units of power on the next wire  
 
-- **Switch Block**  
+- **Power Switch**  
   Inputs = 1  
   Outputs = 1  
   - Accepts any power ≥ 1 unit  
   - Manual on/off toggle  
   - Does not amplify signal  
 
-- **Double Switch Block**  
+- **Split Switch**  
   Inputs = 1  
   Outputs = 2 (one active at a time)  
   - Accepts any power ≥ 1 unit  
