@@ -1,4 +1,4 @@
-[Circuit game library repository](https://github.com/greeenlaser/circuit_game)
+[Circuit Chan library repository](https://github.com/greeenlaser/circuit_game)
 
 ---
 
