@@ -5,6 +5,8 @@ The player character is a young woman equipped with a cybernetic arm, capable of
 Movement is free in first-person perspective, while interaction with puzzle elements occurs on a fixed 0.5m x 0.5m x 0.5m cubic grid.  
 Progression is level-to-level, with each level containing a self-contained circuit challenge that must be completed to unlock the exit.
 
+The game uses [KalaWindow](https://github.com/kalakit/kalawindow) as its foundation for windowing, graphics and input.
+
 ## Environment
 Initial facility state is clean and operational:
 - Uniform lighting
