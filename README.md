@@ -1,8 +1,65 @@
-# Circuit game
+# Circuit Chan
 
-This is a challenge for myself to make a game with KalaWindow. The goal is to make a 1-layer circuit simulator game in "free mode" aka no quests, no goals, just make any kind of a circuit with the given parts. I don't have any electrical engineering background so the logic may be broken or invalid in real world use cases so take this game as a fun hobby project and not a real world simulation.
+Circuit Chan is a first-person puzzle/platformer game set in a research facility, inspired by Portal games for their level design and by Minecraft for its redstone system.  
+The player character is a young woman equipped with a cybernetic arm, capable of precise manipulation of circuit components.  
+Movement is free in first-person perspective, while interaction with puzzle elements occurs on a fixed 0.5m x 0.5m x 0.5m cubic grid.  
+Progression is level-to-level, with each level containing a self-contained circuit challenge that must be completed to unlock the exit.
 
-This project also used [KalaTestProject](https://github.com/KalaKit/KalaTestProject) as the foundation and built upon it.
+## Environment
+Initial facility state is clean and operational:
+- Uniform lighting
+- Polished wall/floor panels
+- Clearly organized wiring
+- Distinct color-coded themes per room
+
+Guidance is provided by an automated voice system with the following characteristics:
+- Consistent tone and cadence
+- Provides concise operational instructions
+- No personality or emotional variance
+
+Over time, environmental and system degradation occurs:
+- Minor: flickering lights, delayed door responses, inconsistent indicator lighting
+- Moderate: missing wall panels, exposed wiring, water leakage, irregular machine noise
+- Severe: collapsed floor sections, jammed doors, partial room construction, emergency lighting only
+
+## Circuit System
+
+### Power Rules
+- **Directional Flow:** Power transfers only through valid input/output faces
+- **Power Decay:** Each block in the path consumes 1 unit of power
+- **Source Strength:** Power sources output 15 units by default
+- **Exact Requirements:** Target devices require an exact power amount to activate; surplus or deficit fails
+- **Connection Integrity:** Blocks with both input and output require both to be connected for transfer
+
+### State Rules
+- State signals transmit via direct attachment to any side of a compatible block
+- State does not carry power
+- State blocks include **Activator** and **Memory**
+- Memory blocks only accept state from an Activator
+- State cannot affect pre-placed blocks or same-type state blocks
+
+### Block Types
+- **Power Blocks:** Wire, Layer Socket, Repeater, Power Switch, Split Switch, Delay, Inverter
+- **State Blocks:** Activator, Memory
+- **Special:** One-Way Socket (exact power target), Passthrough Socket (linked endpoint transfer)
+
+### Placement Rules
+- All placed blocks require solid ground
+- Wires are non-solid; Layer Sockets can be placed on them
+- Blocks are destroyed if supporting ground becomes non-solid
+
+## Gameplay Progression
+1. **Stable Operations:** Fully functional environment, clearly defined puzzles, standard block usage
+2. **Anomalies:** Small inconsistencies appear, no effect on puzzle solvability
+3. **Degradation:** Room construction irregularities, puzzle assembly using mismatched or repaired components
+4. **Critical Failure:** Facility systems collapse, puzzles become improvised repairs to progress
+5. **System Shutdown:** Guidance voice ceases operation, facility non-functional
+
+## End State
+Final chamber leads to an unsealed exit.  
+Exterior environment is natural, with open sky and vegetation.  
+Guidance system is inactive, and there are no signs of the original human operators.  
+Player departs facility, marking the conclusion of operational scope.
 
 ---
 
