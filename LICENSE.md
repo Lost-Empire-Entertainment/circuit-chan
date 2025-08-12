@@ -10,6 +10,7 @@
   - Any compiled or modified versions **originating from that source code**
 - This license **does not apply** to any commercial releases made by the original creator — past, present, or future (including but not limited to Steam, itch.io, or other platforms).  
   - Those releases remain under their own commercial terms and are **not** covered by this license.
+- This license **does not apply** to third party libraries that exist within the `/_external_shared` folder.
 
 ## 2. Ownership
 - All rights to the original game — including source code, assets, and bundled third-party files — remain with the original creator(s).
