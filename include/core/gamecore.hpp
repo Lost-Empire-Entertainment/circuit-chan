@@ -46,6 +46,10 @@ namespace CircuitGame::Core
 		//Initializes all parts of this program
 		static void Initialize();
 
+		//Unmodified, raw frame time as measured by the clock
+		static f64 GetFrameTime() { return frameTime; }
+		static void SetFrameTime(f64 newFrameTime) { frameTime = newFrameTime; }
+
 		//Returns the variable frame delta (seconds) used for rendering and time-based updates.
 		static f64 GetDeltaTime() { return deltaTime; }
 		static void SetDeltaTime(f64 newDeltaTime) { deltaTime = newDeltaTime; }
@@ -60,6 +64,7 @@ namespace CircuitGame::Core
 		//Fully shuts down this program, used when a crash condition is detected
 		static void Shutdown_Crash();
 	private:
+		static inline f64 frameTime{};
 		static inline f64 deltaTime{};
 		static inline f64 fixedDelta = 1.0 / 60.0;
 	};

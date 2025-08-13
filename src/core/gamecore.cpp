@@ -240,8 +240,13 @@ void UpdateDeltaTime()
 	duration<f64> delta = now - lastFrameTime;
 	lastFrameTime = now;
 
+	//unscaled, unclamped
+	f64 frameTime = delta.count();
+
+	//regular deltatime
 	f64 deltaTime = clamp(delta.count(), 0.0, 0.1);
 
+	Game::SetFrameTime(frameTime);
 	Game::SetDeltaTime(deltaTime);
 }
 
@@ -252,14 +257,27 @@ void DisplayTitleData()
 	static auto startTime = steady_clock::now();
 	static auto lastLogTime = startTime;
 
+	static f64 accumFrameTime = 0.0;
+	static unsigned int frameCount = 0;
+	static f64 fps = 0.0;
+	static f64 deltaTime = 0.0;
+
 	auto now = steady_clock::now();
 	duration<f64> totalElapsed = now - startTime;
 	duration<f64> logElapsed = now - lastLogTime;
 
+	accumFrameTime += Game::GetFrameTime();
+	++frameCount;
+
+	if (accumFrameTime > 0.0
+		&& frameCount > 0)
+	{
+		fps = static_cast<f64>(frameCount) / accumFrameTime;
+		deltaTime = (accumFrameTime * 1000.0) / static_cast<f64>(frameCount);
+	}
+
 	if (logElapsed.count() >= 0.1)
 	{
-		f64 seconds = logElapsed.count();
-
 		//window size
 
 		vec2 winSize = mainWindow->GetSize();
@@ -274,8 +292,6 @@ void DisplayTitleData()
 
 		//fps
 
-		f64 fps = 1.0 / Game::GetDeltaTime();
-
 		char fpsBuffer[32];
 		snprintf(fpsBuffer, sizeof(fpsBuffer), "%.8f", fps);
 		char* fpsDot = strchr(fpsBuffer, '.');
@@ -284,8 +300,6 @@ void DisplayTitleData()
 		string fpsStr(fpsBuffer);
 
 		//deltatime
-
-		f64 deltaTime = Game::GetDeltaTime() * 1000.0;
 
 		char dtBuffer[32];
 		snprintf(dtBuffer, sizeof(dtBuffer), "%.8f", deltaTime);
@@ -300,5 +314,7 @@ void DisplayTitleData()
 		mainWindow->SetTitle(title);
 
 		lastLogTime = now;
+		accumFrameTime = 0.0;
+		frameCount = 0;
 	}
 }
