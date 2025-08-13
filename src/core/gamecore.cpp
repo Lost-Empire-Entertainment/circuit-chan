@@ -249,12 +249,8 @@ void DisplayTitleData()
 {
 	if (!isDisplayingTitleData) return;
 
-	static u32 frameCount = 0;
-
 	static auto startTime = steady_clock::now();
 	static auto lastLogTime = startTime;
-
-	frameCount++;
 
 	auto now = steady_clock::now();
 	duration<f64> totalElapsed = now - startTime;
@@ -263,20 +259,8 @@ void DisplayTitleData()
 	if (logElapsed.count() >= 0.1)
 	{
 		f64 seconds = logElapsed.count();
-		f64 fps = frameCount / seconds;  // use exact duration
 
-		char buffer[32];
-		snprintf(buffer, sizeof(buffer), "%.8f", fps);
-		char* dot = strchr(buffer, '.');
-		if (dot && *(dot + 3)) *(dot + 3) = '\0';
-
-		string fpsStr(buffer);
-
-		/*
-		cout << "[+"
-			<< static_cast<int>(totalElapsed.count())
-			<< "s] Frames: " << fpsStr << "\n";
-		*/
+		//window size
 
 		vec2 winSize = mainWindow->GetSize();
 		if (lastSize.x != winSize.x
@@ -288,10 +272,33 @@ void DisplayTitleData()
 			to_string(static_cast<int>(lastSize.x)) + "x" +
 			to_string(static_cast<int>(lastSize.y));
 
-		string title = "CircuitGame [ " + resolution + " ] [ " + fpsStr + " fps ]";
+		//fps
+
+		f64 fps = 1.0 / Game::GetDeltaTime();
+
+		char fpsBuffer[32];
+		snprintf(fpsBuffer, sizeof(fpsBuffer), "%.8f", fps);
+		char* fpsDot = strchr(fpsBuffer, '.');
+		if (fpsDot && *(fpsDot + 3)) *(fpsDot + 3) = '\0';
+
+		string fpsStr(fpsBuffer);
+
+		//deltatime
+
+		f64 deltaTime = Game::GetDeltaTime() * 1000.0;
+
+		char dtBuffer[32];
+		snprintf(dtBuffer, sizeof(dtBuffer), "%.8f", deltaTime);
+		char* dtDot = strchr(dtBuffer, '.');
+		if (dtDot && *(dtDot + 3)) *(dtDot + 3) = '\0';
+
+		string dtStr(dtBuffer);
+
+		//display data
+
+		string title = "CircuitGame [ " + resolution + " ] [ " + fpsStr + " FPS (" + dtStr + "ms) ]";
 		mainWindow->SetTitle(title);
 
-		frameCount = 0;
 		lastLogTime = now;
 	}
 }
