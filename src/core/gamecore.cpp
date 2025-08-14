@@ -145,7 +145,6 @@ namespace CircuitGame::Core
 		while (isRunning)
 		{
 			UpdateDeltaTime();
-			PlayerInput::HandleInput();
 
 			/*
 			* 
@@ -164,6 +163,9 @@ namespace CircuitGame::Core
 			*/
 
 			mainWindow->Update();
+
+			//handle input AFTER processing windows message loop events
+			PlayerInput::HandleInput();
 
 			if (Input::IsKeyPressed(Key::Num1))
 			{

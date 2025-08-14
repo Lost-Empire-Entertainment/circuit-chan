@@ -23,6 +23,7 @@ using CircuitGame::Graphics::Camera;
 using CircuitGame::Core::createdCamera;
 
 using std::to_string;
+using std::string;
 using glm::radians;
 
 enum class Action
@@ -41,14 +42,26 @@ namespace CircuitGame::Core
 {
 	void PlayerInput::HandleInput()
 	{
-		//TODO: INVESTIGATE WHY LEFT MOUSE BUTTON ALSO MOVES CAMERA UP
+		if (mainWindow == nullptr
+			|| !mainWindow->IsFocused()
+			|| createdCamera == nullptr)
+		{
+			return;
+		}
 
-		bool canUseCamera = 
-			mainWindow != nullptr
-			&& mainWindow->IsFocused()
-			&& createdCamera != nullptr;
+		if (Input::IsKeyPressed(Key::Escape))
+		{
+			bool currentMoveState = createdCamera->CanMove();
 
-		if (!canUseCamera)
+			currentMoveState = !currentMoveState;
+
+			string state = currentMoveState ? "true" : "false";
+			Logger::Print("Set camera move state to '" + state + "'!");
+
+			createdCamera->SetMoveState(currentMoveState);
+		}
+
+		if (!createdCamera->CanMove())
 		{
 			if (Input::GetKeepMouseDeltaState())
 			{
@@ -80,6 +93,8 @@ namespace CircuitGame::Core
 		if (Input::IsKeyDown(Key::S)) pos -= front * velocity;
 		if (Input::IsKeyDown(Key::A)) pos -= right * velocity;
 		if (Input::IsKeyDown(Key::D)) pos += right * velocity;
+
+		//TODO: INVESTIGATE WHY LEFT MOUSE BUTTON ALSO MOVES CAMERA UP
 
 		//Q/E always goes up and down relative to world Y
 		if (Input::IsKeyDown(Key::Q)) pos -= up * velocity;

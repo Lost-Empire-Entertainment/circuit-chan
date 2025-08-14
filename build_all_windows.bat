@@ -33,7 +33,7 @@ call :BuildWithPreset debug Debug
 call :BuildWithPreset release Release
 
 echo =====================================
-echo [SUCCESS] Finished building and installing CircuitGame!
+echo [SUCCESS] Finished building and installing Circuit Chan!
 echo =====================================
 echo.
 pause
@@ -54,7 +54,7 @@ set "PRESET=%~1"
 set "CONFIG=%~2"
 
 echo =====================================
-echo [INFO] Building CircuitGame in %PRESET% (%CONFIG%) mode...
+echo [INFO] Building Circuit Chan in %PRESET% (%CONFIG%) mode...
 echo =====================================
 echo.
 
