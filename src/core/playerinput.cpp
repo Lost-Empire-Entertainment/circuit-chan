@@ -43,14 +43,30 @@ namespace CircuitGame::Core
 	{
 		//TODO: INVESTIGATE WHY LEFT MOUSE BUTTON ALSO MOVES CAMERA UP
 
-		if (mainWindow == nullptr
-			|| !mainWindow->IsFocused()
-			|| createdCamera == nullptr)
+		bool canUseCamera = 
+			mainWindow != nullptr
+			&& mainWindow->IsFocused()
+			&& createdCamera != nullptr;
+
+		if (!canUseCamera)
 		{
+			if (Input::GetKeepMouseDeltaState())
+			{
+				Input::SetMouseLockState(false);
+				Input::SetMouseVisibility(true);
+				Input::SetKeepMouseDeltaState(false);
+			}
 			return;
 		}
 
-		vec2 mouseDelta = Input::GetMouseDelta();
+		if (!Input::GetKeepMouseDeltaState())
+		{
+			Input::SetMouseLockState(true);
+			Input::SetMouseVisibility(false);
+			Input::SetKeepMouseDeltaState(true);
+		}
+
+		vec2 mouseDelta = Input::GetRawMouseDelta();
 		createdCamera->UpdateCameraRotation(mouseDelta);
 
 		const vec3& front = createdCamera->GetFront();

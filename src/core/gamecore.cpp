@@ -215,7 +215,7 @@ namespace CircuitGame::Core
 
 			Render::Update();
 
-			Input::EndFrameUpdate();
+			Input::EndFrameUpdate(mainWindow);
 		}
 	}
 
