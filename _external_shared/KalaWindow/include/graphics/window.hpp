@@ -15,6 +15,8 @@ namespace KalaWindow::Graphics
 {
 	//TODO: CREATE AN INTERNAL FRAMEBUFFER SYSTEM WHERE THE INTERNAL FRAMEBUFFER RESOLUTION ALWAYS MATCHES
 	//USER RESOLUTION WHILE WINDOW RESOLUTION SCALES DYNAMICALLY
+	
+	//TODO: SEPARATE REUSABLE OPENGL/VULKAN STUFF FROM PER-WINDOW TO GLOBAL
 
 	using std::string;
 	using std::function;
@@ -29,6 +31,8 @@ namespace KalaWindow::Graphics
 		WINDOW_HIDE,          //Hide the window, including from taskbar
 		WINDOW_SHOWNOACTIVATE //Display the window without focusing to it
 	};
+
+	//TODO: ADD FILE EXPLORER FUNCTION
 
 	enum class FileType
 	{
