@@ -59,6 +59,8 @@ using std::to_string;
 using std::stringstream;
 using std::clamp;
 
+static string title = "Circuit Chan 0.0.3 Alpha";
+
 static bool isInitialized = false;
 static bool isRunning = false;
 
@@ -85,13 +87,12 @@ namespace CircuitGame::Core
 	void Game::Initialize()
 	{
 		KalaCrashHandler::SetShutdownCallback(Shutdown_Crash);
-		KalaCrashHandler::SetProgramName("CircuitGame");
+		KalaCrashHandler::SetProgramName("Circuit Chan");
 
 		KalaCrashHandler::Initialize();
 
 		KalaWindowCore::SetUserShutdownFunction(Render::Shutdown);
 
-		string title = "CircuitGame";
 		f32 width = 800;
 		f32 height = 600;
 		
@@ -196,13 +197,10 @@ namespace CircuitGame::Core
 			{
 				isDisplayingTitleData = !isDisplayingTitleData;
 
-				if (!isDisplayingTitleData)
+				if (!isDisplayingTitleData
+					&& mainWindow->GetTitle() != title)
 				{
-					string title = "CircuitGame";
-					if (mainWindow->GetTitle() != title)
-					{
-						mainWindow->SetTitle(title);
-					}
+					mainWindow->SetTitle(title);
 				}
 
 				string newDisplayTitleData = isDisplayingTitleData
@@ -310,8 +308,8 @@ void DisplayTitleData()
 
 		//display data
 
-		string title = "CircuitGame [ " + resolution + " ] [ " + fpsStr + " FPS (" + dtStr + "ms) ]";
-		mainWindow->SetTitle(title);
+		string fullTitle = title + " [ " + resolution + " ] [ " + fpsStr + " FPS (" + dtStr + "ms) ]";
+		mainWindow->SetTitle(fullTitle);
 
 		lastLogTime = now;
 		accumFrameTime = 0.0;
