@@ -161,7 +161,7 @@ namespace CircuitGame::Graphics
 
 	void Render::Redraw()
 	{
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f); //dark gray
+		glClearColor(0.29f, 0.36f, 0.85f, 1.0f); //light blue
 		glClear(
 			GL_COLOR_BUFFER_BIT
 			| GL_DEPTH_BUFFER_BIT);
