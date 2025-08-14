@@ -119,6 +119,7 @@ namespace CircuitGame::Core
 
 		mainWindow->SetMinSize(vec2{ 800, 600 });
 		mainWindow->SetMaxSize(vec2{ 3840, 2160 });
+		mainWindow->SetWindowState(WindowState::WINDOW_MAXIMIZE);
 
 		stringstream ss{};
 		ss << "\n====================\n"
@@ -135,8 +136,6 @@ namespace CircuitGame::Core
 
 		isInitialized = true;
 		isRunning = true;
-
-		mainWindow->SetWindowState(WindowState::WINDOW_MAXIMIZE);
 
 		Game::Update();
 	}

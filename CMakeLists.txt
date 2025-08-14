@@ -1,6 +1,6 @@
 ﻿cmake_minimum_required(VERSION 3.29.2)
 
-project("CircuitGame" VERSION 1.0.0 LANGUAGES C CXX)
+project("Circuit_Chan" VERSION 1.0.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -8,12 +8,12 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Platform Detection
 if (WIN32)
-    message(STATUS "[CIRCUITGAME] Platform = Windows")
+    message(STATUS "[CIRCUIT_CHAN] Platform = Windows")
 elseif(UNIX)
     find_package(X11 REQUIRED)
-    message(STATUS "[CIRCUITGAME] Platform = Linux")
+    message(STATUS "[CIRCUIT_CHAN] Platform = Linux")
 else()
-    message(FATAL_ERROR "[CIRCUITGAME] Unsupported platform. Must be Windows or Linux.")
+    message(FATAL_ERROR "[CIRCUIT_CHAN] Unsupported platform. Must be Windows or Linux.")
 endif()
 
 # Build Type Detection
@@ -71,28 +71,28 @@ file(GLOB_RECURSE SOURCE_FILES CONFIGURE_DEPENDS
 )
 
 # Executable
-add_executable(CircuitGame ${SOURCE_FILES})
+add_executable(Circuit_Chan ${SOURCE_FILES})
 
 # Enable exception handling for MSVC
 if (MSVC)
-    target_compile_options(CircuitGame PRIVATE /EHsc)
+    target_compile_options(Circuit_Chan PRIVATE /EHsc)
 endif()
 
 if (WIN32 AND RESOURCE_FILE)
     #set_source_files_properties(${RESOURCE_FILE} PROPERTIES LANGUAGE RC)
-    #target_sources(CircuitGame PRIVATE ${RESOURCE_FILE})
+    #target_sources(Circuit_Chan PRIVATE ${RESOURCE_FILE})
 endif()
 
-set_target_properties(CircuitGame PROPERTIES OUTPUT_NAME "CircuitGame")
-target_compile_features(CircuitGame PRIVATE cxx_std_20)
+set_target_properties(Circuit_Chan PROPERTIES OUTPUT_NAME "Circuit Chan")
+target_compile_features(Circuit_Chan PRIVATE cxx_std_20)
 
 # Includes
 file(GLOB_RECURSE HEADERS
 	configure_depends
 	"${CMAKE_SOURCE_DIR}/include/*.hpp"
 )
-target_sources(CircuitGame PRIVATE ${HEADERS})
-target_include_directories(CircuitGame PRIVATE
+target_sources(Circuit_Chan PRIVATE ${HEADERS})
+target_include_directories(Circuit_Chan PRIVATE
 	"${INCLUDE_DIR}"
 	"${INCLUDE_DIR}/glm"
     "${EXT_WINDOW_DIR}/include"
@@ -101,11 +101,11 @@ target_include_directories(CircuitGame PRIVATE
 
 # Preprocessor Defines
 if (WIN32)
-    target_compile_definitions(CircuitGame PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
+    target_compile_definitions(Circuit_Chan PRIVATE WIN32_LEAN_AND_MEAN NOMINMAX)
 endif()
 
 # Link libraries
-target_link_libraries(CircuitGame PRIVATE
+target_link_libraries(Circuit_Chan PRIVATE
 	#Vulkan::Vulkan
 	opengl32
 	${WINDOW_LIBRARY_PATH}
@@ -114,25 +114,25 @@ target_link_libraries(CircuitGame PRIVATE
 	#vulkan-1)
 if (WIN32)
 else()
-    target_link_libraries(CircuitGame PRIVATE ${X11_LIBRARIES})
+    target_link_libraries(Circuit_Chan PRIVATE ${X11_LIBRARIES})
 endif()
 
 # Windows Subsystem for Release builds
 if(IS_RELEASE AND WIN32)
-    set_target_properties(CircuitGame PROPERTIES WIN32_EXECUTABLE TRUE)
+    set_target_properties(Circuit_Chan PROPERTIES WIN32_EXECUTABLE TRUE)
     if (MSVC)
-        set_target_properties(CircuitGame PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup")
+        set_target_properties(Circuit_Chan PROPERTIES LINK_FLAGS "/ENTRY:mainCRTStartup")
     endif()
 endif()
 
 # Installation
 set(CMAKE_INSTALL_BINDIR bin)
-install(TARGETS CircuitGame DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS Circuit_Chan DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 # Copy files directory
-add_custom_command(TARGET CircuitGame POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:CircuitGame>/files"
-    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/files" "$<TARGET_FILE_DIR:CircuitGame>/files"
+add_custom_command(TARGET Circuit_Chan POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E remove_directory "$<TARGET_FILE_DIR:Circuit_Chan>/files"
+    COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_SOURCE_DIR}/files" "$<TARGET_FILE_DIR:Circuit_Chan>/files"
 )
 
 # Copy external DLLs (Windows only)
@@ -149,11 +149,11 @@ if (WIN32)
 		"${DLL_KALAWINDOW}/*.dll"
 		"${DLL_KALACRASHHANDLER}/*.dll"
 	)
-    set(DLL_TARGET_DIR "$<TARGET_FILE_DIR:CircuitGame>")
+    set(DLL_TARGET_DIR "$<TARGET_FILE_DIR:Circuit_Chan>")
 
     foreach(DLL_FILE ${DLL_FILES})
         get_filename_component(DLL_NAME ${DLL_FILE} NAME)
-        add_custom_command(TARGET CircuitGame POST_BUILD
+        add_custom_command(TARGET Circuit_Chan POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy "${DLL_FILE}" "${DLL_TARGET_DIR}/${DLL_NAME}"
         )
     endforeach()
@@ -162,9 +162,9 @@ endif()
 # Copy docs
 #set(COPY_TARGETS LICENSE.md LIBRARIES.md)
 #foreach(FILE ${COPY_TARGETS})
-#  add_custom_command(TARGET CircuitGame POST_BUILD
-#    COMMAND ${CMAKE_COMMAND} -E remove "$<TARGET_FILE_DIR:CircuitGame>/${FILE}"
-#    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/${FILE}" #"$<TARGET_FILE_DIR:CircuitGame>/${FILE}"
+#  add_custom_command(TARGET Circuit_Chan POST_BUILD
+#    COMMAND ${CMAKE_COMMAND} -E remove "$<TARGET_FILE_DIR:Circuit_Chan>/${FILE}"
+#    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/${FILE}" #"$<TARGET_FILE_DIR:Circuit_Chan>/${FILE}"
 #  )
 #endforeach()
 
