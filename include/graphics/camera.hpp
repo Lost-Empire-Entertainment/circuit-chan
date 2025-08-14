@@ -66,10 +66,19 @@ namespace CircuitGame::Graphics
 			speed = clamp(newSpeed, 0.1f, 10.0f);
 		}
 
+		f32 GetSensitivity() const { return sensitivity; }
+		void SetSensitivity(f32 newSens)
+		{
+			sensitivity = clamp(newSens, 0.001f, 10.0f);
+		}
+
 		mat4 GetViewMatrix() const;
 
 		const vec3& GetUp() const { return up; }
+		void SetFront(const vec3& newFront) { front = newFront; }
 		const vec3& GetFront() const { return front; }
+		void SetRight(const vec3& newRight) { right = newRight; }
+		const vec3& GetRight() const { return right; }
 
 		const vec3& GetPos() const { return pos; }
 		void SetPos(const vec3& newPos)
@@ -127,9 +136,11 @@ namespace CircuitGame::Graphics
 		f32 farClip = 500.0f;
 		f32 aspectRatio = 1.777777f; //For 16/9 aspect ratio
 		f32 speed = 1.0f;
+		f32 sensitivity = 0.1f;
 
 		vec3 up = vec3(0.0f, 1.0f, 0.0f);
 		vec3 front = vec3(0.0f, 0.0f, -1.0f);
+		vec3 right = vec3(1.0f, 0.0f, 0.0f);
 
 		vec3 pos = vec3(0);
 		vec3 rot = vec3(0);

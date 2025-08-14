@@ -23,6 +23,7 @@ using CircuitGame::Graphics::Camera;
 using CircuitGame::Core::createdCamera;
 
 using std::to_string;
+using glm::radians;
 
 enum class Action
 {
@@ -40,67 +41,34 @@ namespace CircuitGame::Core
 {
 	void PlayerInput::HandleInput()
 	{
-		if (createdCamera != nullptr)
+		//TODO: INVESTIGATE WHY LEFT MOUSE BUTTON ALSO MOVES CAMERA UP
+
+		if (mainWindow == nullptr
+			|| !mainWindow->IsFocused()
+			|| createdCamera == nullptr)
 		{
-			auto GetNewPos = [](Action action, Direction dir) -> vec3
-				{
-					vec3 pos = createdCamera->GetPos();
-
-					float speed = createdCamera->GetSpeed();
-					f32 deltaTime = static_cast<f32>(Game::GetDeltaTime());
-
-					float addition = speed * deltaTime;
-
-					switch (dir)
-					{
-					case Direction::DIR_X:
-						pos.x = action == Action::ACTION_SUBTRACT
-							? pos.x - addition
-							: pos.x + addition;
-
-						return pos;
-					case Direction::DIR_Y:
-						pos.y = action == Action::ACTION_SUBTRACT
-							? pos.y - addition
-							: pos.y + addition;
-
-						return pos;
-					case Direction::DIR_Z:
-						pos.z = action == Action::ACTION_SUBTRACT
-							? pos.z - addition
-							: pos.z + addition;
-
-						return pos;
-					}
-
-					return vec3(0);
-				};
-
-			if (Input::IsKeyDown(Key::Q))
-			{
-				createdCamera->SetPos(GetNewPos(Action::ACTION_SUBTRACT, Direction::DIR_Y));
-			}
-			if (Input::IsKeyDown(Key::E))
-			{
-				createdCamera->SetPos(GetNewPos(Action::ACTION_ADD, Direction::DIR_Y));
-			}
-
-			if (Input::IsKeyDown(Key::W))
-			{
-				createdCamera->SetPos(GetNewPos(Action::ACTION_SUBTRACT, Direction::DIR_Z));
-			}
-			if (Input::IsKeyDown(Key::S))
-			{
-				createdCamera->SetPos(GetNewPos(Action::ACTION_ADD, Direction::DIR_Z));
-			}
-			if (Input::IsKeyDown(Key::A))
-			{
-				createdCamera->SetPos(GetNewPos(Action::ACTION_SUBTRACT, Direction::DIR_X));
-			}
-			if (Input::IsKeyDown(Key::D))
-			{
-				createdCamera->SetPos(GetNewPos(Action::ACTION_ADD, Direction::DIR_X));
-			}
+			return;
 		}
+
+		vec2 mouseDelta = Input::GetMouseDelta();
+		createdCamera->UpdateCameraRotation(mouseDelta);
+
+		const vec3& front = createdCamera->GetFront();
+		const vec3& right = createdCamera->GetRight();
+		const vec3& up = createdCamera->GetUp();
+
+		float velocity = createdCamera->GetSpeed() * static_cast<f32>(Game::GetDeltaTime());
+		vec3 pos = createdCamera->GetPos();
+
+		if (Input::IsKeyDown(Key::W)) pos += front * velocity;
+		if (Input::IsKeyDown(Key::S)) pos -= front * velocity;
+		if (Input::IsKeyDown(Key::A)) pos -= right * velocity;
+		if (Input::IsKeyDown(Key::D)) pos += right * velocity;
+
+		//Q/E always goes up and down relative to world Y
+		if (Input::IsKeyDown(Key::Q)) pos -= up * velocity;
+		if (Input::IsKeyDown(Key::E)) pos += up * velocity;
+
+		createdCamera->SetPos(pos);
 	}
 }

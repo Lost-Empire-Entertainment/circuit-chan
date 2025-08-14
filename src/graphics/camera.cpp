@@ -22,6 +22,7 @@ using CircuitGame::Core::createdCamera;
 using std::unique_ptr;
 using std::make_unique;
 using glm::lookAt;
+using glm::radians;
 
 namespace CircuitGame::Graphics
 {
@@ -75,7 +76,18 @@ namespace CircuitGame::Graphics
 
 	void Camera::UpdateCameraRotation(vec2 delta)
 	{
+		rot.y += delta.x * sensitivity; //yaw
+		rot.x -= delta.y * sensitivity; //pitch
 
+		//clamp to avoid flipping
+		rot.x = clamp(rot.x, -89.99f, 89.99f);
+
+		front.x = cos(radians(rot.y)) * cos(radians(rot.x));
+		front.y = sin(radians(rot.x));
+		front.z = sin(radians(rot.y)) * cos(radians(rot.x));
+		front = normalize(front);
+
+		right = normalize(cross(front, vec3(0.0f, 1.0f, 0.0f)));
 	}
 
 	mat4 Camera::GetViewMatrix() const
