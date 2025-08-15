@@ -1,0 +1,36 @@
+0.0.1:
+- simple triangle test
+
+0.0.2:
+- camera movement, no rotation
+- wireframe cube test
+- title bar logging info
+
+- press the keys to do various actions:
+	- 1 - enable vsync
+	- 2 - disable vsync
+	- 3 - enable triple buffering (vulkan only, switches to enable to vsync on opengl)
+	- 4 - toggle sleep on and off
+	- 5 - toggle title bar debug info on and off
+	
+	- wasd - camera movement
+	- q - move camera down
+	- e - move camera up
+
+0.0.3:
+- camera rotation
+- improved title bar logging structure
+- can toggle camera movement on and off
+
+- press the keys to do various actions:
+	- 1 - enable vsync
+	- 2 - disable vsync
+	- 3 - enable triple buffering (vulkan only, does nothing on opengl)
+	- 4 - toggle title bar debug info on and off
+	
+	- wasd - camera movement
+	- q - move camera down
+	- e - move camera up
+	- esc - toggle camera movement and rotation on and off
+	- move mouse to rotate camera
+

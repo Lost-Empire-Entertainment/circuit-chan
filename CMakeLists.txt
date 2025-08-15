@@ -38,8 +38,9 @@ endif()
 # Directory Setup
 set(INCLUDE_DIR "${CMAKE_SOURCE_DIR}/include")
 
-set(EXT_WINDOW_DIR "${CMAKE_SOURCE_DIR}/_external_shared/KalaWindow")
-set(EXT_CRASH_DIR "${CMAKE_SOURCE_DIR}/_external_shared/KalaCrashHandler")
+set(EXT_SHARED_DIR "${CMAKE_SOURCE_DIR}/_external_shared")
+set(EXT_WINDOW_DIR "${EXT_SHARED_DIR}/Kalawindow")
+set(EXT_CRASH_DIR "${EXT_SHARED_DIR}/KalaCrashHandler")
 
 # Dependencies
 # find_package(OpenGL REQUIRED)
@@ -94,9 +95,9 @@ file(GLOB_RECURSE HEADERS
 target_sources(Circuit_Chan PRIVATE ${HEADERS})
 target_include_directories(Circuit_Chan PRIVATE
 	"${INCLUDE_DIR}"
-	"${INCLUDE_DIR}/glm"
-    "${EXT_WINDOW_DIR}/include"
-    "${EXT_CRASH_DIR}/include"
+	"${EXT_SHARED_DIR}"
+	"${EXT_SHARED_DIR}/KalaWindow/include"
+	"${EXT_SHARED_DIR}/KalaCrashHandler/include"
 )
 
 # Preprocessor Defines
@@ -138,11 +139,11 @@ add_custom_command(TARGET Circuit_Chan POST_BUILD
 # Copy external DLLs (Windows only)
 if (WIN32)
 	if(IS_RELEASE)
-		set(DLL_KALAWINDOW "${CMAKE_SOURCE_DIR}/_external_shared/KalaWindow/release")
-		set(DLL_KALACRASHHANDLER "${CMAKE_SOURCE_DIR}/_external_shared/KalaCrashHandler/release")
+		set(DLL_KALAWINDOW "${EXT_WINDOW_DIR}/release")
+		set(DLL_KALACRASHHANDLER "${EXT_CRASH_DIR}/release")
 	else()
-		set(DLL_KALAWINDOW "${CMAKE_SOURCE_DIR}/_external_shared/KalaWindow/debug")
-		set(DLL_KALACRASHHANDLER "${CMAKE_SOURCE_DIR}/_external_shared/KalaCrashHandler/debug")
+		set(DLL_KALAWINDOW "${EXT_WINDOW_DIR}/debug")
+		set(DLL_KALACRASHHANDLER "${EXT_CRASH_DIR}/debug")
 	endif()
 
     file(GLOB DLL_FILES 
@@ -160,13 +161,15 @@ if (WIN32)
 endif()
 
 # Copy docs
-#set(COPY_TARGETS LICENSE.md LIBRARIES.md)
-#foreach(FILE ${COPY_TARGETS})
-#  add_custom_command(TARGET Circuit_Chan POST_BUILD
-#    COMMAND ${CMAKE_COMMAND} -E remove "$<TARGET_FILE_DIR:Circuit_Chan>/${FILE}"
-#    COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_SOURCE_DIR}/${FILE}" #"$<TARGET_FILE_DIR:Circuit_Chan>/${FILE}"
-#  )
-#endforeach()
+set(COPY_TARGETS README.md LICENSE.md CHANGES.txt)
+foreach(FILE ${COPY_TARGETS})
+add_custom_command(TARGET Circuit_Chan POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E remove "$<TARGET_FILE_DIR:Circuit_Chan>/${FILE}"
+    COMMAND ${CMAKE_COMMAND} -E copy
+		"${CMAKE_SOURCE_DIR}/${FILE}"
+		"$<TARGET_FILE_DIR:Circuit_Chan>/${FILE}"
+)
+endforeach()
 
 # Package
 include(CPack)
