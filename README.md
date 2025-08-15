@@ -65,9 +65,22 @@ Player departs facility, marking the conclusion of operational scope.
 
 ---
 
-# Used external libraries:
+# External libraries
 
-- [KalaWindow](https://github.com/KalaKit/KalaWindow)
-- [KalaCrashHandler](https://github.com/KalaKit/KalaCrashHandler)
-- [GLM](https://github.com/g-truc/glm)
-- [stb_image](https://github.com/nothings/stb/blob/master/stb_image.h)
+These libraries are used by Circuit Chan for various purposes, their licenses are included in their folder inside '_external_shared/*' and the Circuit Chan license does not apply to them.
+
+## Owned by Lost Empire Entertainment (under its KalaKit organization)
+
+| Library                                                         | Use case                                                                     |
+|-----------------------------------------------------------------|------------------------------------------------------------------------------|
+| [KalaWindow](https://github.com/KalaKit/KalaWindow)             | Windowing, input, graphics and logging backend.                              |
+| [KalaCrashHandler](https://github.com/KalaKit/KalaCrashHandler) | Able to detect crashes for various reasons that would otherwise cause a CTD. |
+
+## Not owned by Lost Empire Entertainment
+
+| Library                                                              | Use case                                             |
+|----------------------------------------------------------------------|------------------------------------------------------|
+| [GLM](https://github.com/icaven/glm)                                 | Math library for vectors, matrices, and 3D graphics. |
+| [stb_image](https://github.com/nothings/stb/blob/master/stb_image.h) | Loads image files like PNG and JPEG into memory.     |
+| [ImGui](https://github.com/ocornut/imgui)                            | Creates debug and editor user interfaces.            |
+| [MiniAudio](https://github.com/mackron/miniaudio)                    | Plays and records audio on multiple platforms.       |
