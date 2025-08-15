@@ -84,3 +84,5 @@ These libraries are used by Circuit Chan for various purposes, their licenses ar
 | [stb_image](https://github.com/nothings/stb/blob/master/stb_image.h) | Loads image files like PNG and JPEG into memory.     |
 | [ImGui](https://github.com/ocornut/imgui)                            | Creates debug and editor user interfaces.            |
 | [MiniAudio](https://github.com/mackron/miniaudio)                    | Plays and records audio on multiple platforms.       |
+
+> **Note:** The ImGui docking branch was used instead of the main branch to enable dockable windows.
